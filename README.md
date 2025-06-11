@@ -23,7 +23,7 @@ Experience the OS live in your browser! The current version is **v1.6.0 (Mobile 
 
 *(Follow the guide above to replace the placeholder link with the link to your uploaded image)*
 
-![EzKen OS Preview](YOUR_IMAGE_LINK_HERE)
+![EzKen OS Preview](https://github.com/ezken-dev/ezken-dev.github.io/blob/main/image_2025-06-11_190506591.png?raw=true)
 
 <br>
 
