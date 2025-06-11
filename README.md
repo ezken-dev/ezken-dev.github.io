@@ -5,7 +5,7 @@
   <p>
     <img src="https://img.shields.io/badge/version-1.6.0-blue.svg" alt="Version" />
     <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="License" />
-    <img src="https://img.shields.io/badge/tech-Vanilla_JS-yellow.svg" alt="Tech" />
+    <img src="https://img.shields.io/badge/status-stable-brightgreen.svg" alt="Status" />
   </p>
 </div>
 
@@ -13,9 +13,17 @@
 
 ## 🚀 Live Demo
 
-Experience the OS live in your browser!
+Experience the OS live in your browser! The current version is **v1.6.0 (Mobile Optimized)**.
 
 **[►► Click Here to Launch EzKen OS](https://ezken-dev.github.io/)**
+
+<br>
+
+## 📸 Preview
+
+*(Follow the guide above to replace the placeholder link with the link to your uploaded image)*
+
+![EzKen OS Preview](YOUR_IMAGE_LINK_HERE)
 
 <br>
 
@@ -29,9 +37,9 @@ EzKen OS is packed with features designed for a seamless and productive experien
     * **Mobile:** An elegant and satisfying ripple effect that follows your touch.
 * **Personalized Onboarding:** Greets you by name with a polished, multi-stage loading animation.
 * **Core Productivity Apps:**
-    * **📋 Task Manager:** Create and manage your to-do list with a visual progress bar.
-    * **🍅 Pomodoro Timer:** Boost your focus with a built-in Pomodoro timer.
-    * **📝 Notepad:** A simple and quick place to jot down notes.
+    * 📋 Task Manager with progress tracking
+    * 🍅 Pomodoro Timer
+    * 📝 Notepad
 * **Advanced Settings Panel:**
     * Customize your background with dynamic wallpapers from Unsplash.
     * Enable or disable desktop and mobile animations independently.
@@ -42,14 +50,6 @@ EzKen OS is packed with features designed for a seamless and productive experien
     * Draggable and resizable windows.
     * A sleek, dark-mode aesthetic.
 * **Smart Notification System:** Receive unobtrusive, animated notifications for system events.
-
-<br>
-
-## 📸 Preview
-
-*(Suggestion: Record a short GIF of you using the OS and replace this text and image with it. You can use a tool like Giphy Capture or ScreenToGif.)*
-
-![A placeholder image showing a conceptual desktop UI](https://user-images.githubusercontent.com/10107933/165902996-332a22de-9263-4171-8bd2-3253a4792641.png)
 
 <br>
 
@@ -68,7 +68,7 @@ This project was built from the ground up using fundamental web technologies, wi
 Since this is a self-contained project, running it locally is incredibly simple.
 
 1.  Download the `index.html` file from this repository.
-2.  Open the `index.html` file in any modern web browser like Chrome, Firefox, or Edge.
+2.  Open `index.html` in any modern web browser like Chrome, Firefox, or Edge.
 
 <br>
 
@@ -78,11 +78,11 @@ The "More features coming soon!" is just the beginning. Potential future updates
 
 * A simple calculator or music player app.
 * Deeper theme customization (accent colors, fonts).
-* Drag-and-drop file support.
-* Saving data to a remote backend for cross-device syncing.
+* Drag-and-drop file support for a "real" desktop feel.
+* Saving data to a remote backend instead of just `localStorage`.
 
 <br>
 
 ## 📄 License
 
-This project is open-source and distributed under the MIT License. See the `LICENSE` file for more information.
+This project is open-source and distributed under the MIT License.
