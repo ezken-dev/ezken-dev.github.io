@@ -11,7 +11,7 @@
 
 ---
 
-## 🚀 Live Demo
+## 🚀 Live
 
 Experience the OS live in your browser! The current version is **v1.6.0 (Mobile Optimized)**.
 
