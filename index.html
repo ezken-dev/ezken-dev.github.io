@@ -27,63 +27,62 @@
         html { font-size: 16px; }
         body { margin: 0; font-family: var(--font-family); background-color: #000; height: 100vh; overflow: hidden; color: var(--text-color); }
         
-        /* --- Overlays & Popups --- */
         .fullscreen-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 200; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #fff; opacity: 0; visibility: hidden; transition: opacity 0.5s ease-in-out, visibility 0.5s; }
         .fullscreen-overlay.visible { opacity: 1; visibility: visible; }
+
         .intro-content { transition: opacity 0.5s ease-in-out; }
         #intro-logo { font-size: 3.5rem; font-weight: 700; }
+        
         #name-prompt-overlay { z-index: 201; backdrop-filter: blur(10px); background-color: rgba(0,0,0,0.5); }
         #name-prompt-box { background: var(--dock-bg); padding: 2rem; border-radius: 1rem; text-align: center; box-shadow: var(--shadow-color); }
         #name-prompt-box h2 { margin-top: 0; }
         #name-input { margin: 1rem 0; text-align: center; background: var(--input-bg); }
         
-        /* Notification System (NEW) */
-        #notification-container { position: fixed; top: 1rem; right: 1rem; z-index: 300; display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-end; }
-        .notification { background: var(--dock-bg); color: var(--text-color); padding: 0.75rem 1.25rem; border-radius: 0.75rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); backdrop-filter: blur(10px); border: 1px solid var(--border-color); opacity: 0; transform: translateX(100%); animation: slideIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
-        .notification.exit { animation: slideOut 0.4s cubic-bezier(0.55, 0.09, 0.68, 0.53) forwards; }
-        @keyframes slideIn { to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(120%); } }
-
-        /* --- Desktop & Main UI --- */
         .desktop { display: none; height: 100%; position: relative; background-size: cover; background-position: center; transition: background-image 0.5s ease-in-out; }
+        
         #particle-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
+        
         .top-bar { position: fixed; top: 0; left: 0; width: 100%; padding: 0.5rem 1.25rem; z-index: 99; background: var(--dock-bg); backdrop-filter: blur(10px); display: flex; justify-content: space-between; align-items: center;}
         .top-bar-left { display: flex; align-items: center; gap: 1rem; font-weight: 600; }
         #live-clock { font-weight: 500; }
-        .desktop-main-content { padding: 5rem 1.25rem 0 1.25rem; height: 100%; position: relative; z-index: 2; overflow-y: auto; }
-        #welcome-widget { margin-bottom: 2rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); color: #fff; text-align: center; }
+        
+        .desktop-main-content { padding-top: 4rem; height: 100%; padding-left: 1.25rem; position: relative; z-index: 2; }
+        #welcome-widget { margin-bottom: 1.25rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); color: #fff; }
         #welcome-greeting { font-size: 3rem; font-weight: 600; }
         #welcome-message { font-size: 1.5rem; font-weight: 400; }
-        #desktop-icons { display: grid; grid-template-columns: repeat(auto-fill, 100px); gap: 1.5rem; justify-content: center; padding-bottom: 8rem; }
+        #desktop-icons { display: grid; grid-template-columns: repeat(auto-fill, 100px); gap: 1.25rem; max-height: 80%; }
         .desktop-icon { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 0.5rem; cursor: pointer; padding: 0.625rem; border-radius: 0.5rem; transition: background-color 0.2s; }
         .desktop-icon:hover { background-color: rgba(255,255,255,0.2); }
         .desktop-icon .icon { font-size: 3rem; }
         .desktop-icon .label { font-size: 0.875rem; font-weight: 500; text-shadow: 0 1px 3px rgba(0,0,0,0.3); color: #fff; }
-        .dock { position: fixed; bottom: 1rem; left: 50%; transform: translateX(-50%); background: var(--dock-bg); backdrop-filter: blur(25px); border-radius: 1.5rem; border: 1px solid var(--border-color); padding: 0.625rem; display: flex; gap: 0.25rem; z-index: 100; box-shadow: 0 10px 30px var(--shadow-color); }
+
+        .dock { position: absolute; bottom: 1rem; left: 50%; transform: translateX(-50%); background: var(--dock-bg); backdrop-filter: blur(25px); border-radius: 1.5rem; border: 1px solid var(--border-color); padding: 0.625rem; display: flex; gap: 0.25rem; z-index: 100; box-shadow: 0 10px 30px var(--shadow-color); }
         .dock-item { width: 4rem; height: 4rem; border-radius: 1.125rem; display: flex; justify-content: center; align-items: center; font-size: 2.25rem; cursor: pointer; transition: transform 0.2s, filter 0.2s; position: relative; }
         .dock:has(.dock-item:hover) .dock-item:not(:hover) { transform: scale(0.9); filter: brightness(0.9); }
         .dock-item:hover { transform: scale(1.3) translateY(-10px); }
         .active-dot { position: absolute; bottom: -0.5rem; width: 0.375rem; height: 0.375rem; background: var(--text-color-secondary); border-radius: 50%; transition: opacity 0.3s, transform 0.3s; opacity: 0; transform: scale(0); }
         .dock-item.active .active-dot { opacity: 1; transform: scale(1); }
 
-        /* --- Windows --- */
-        .window { position: absolute; background: var(--window-bg); backdrop-filter: blur(25px); border-radius: 0.875rem; border: 1px solid var(--border-color); box-shadow: 0 1.25rem 3.125rem var(--shadow-color); min-width: 320px; resize: both; max-width: 95vw; max-height: 85vh; overflow: hidden; visibility: hidden; opacity: 0; transform: scale(0.95); transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s; z-index: 50; }
+        .window { position: absolute; background: var(--window-bg); backdrop-filter: blur(25px); border-radius: 0.875rem; border: 1px solid var(--border-color); box-shadow: 0 1.25rem 3.125rem var(--shadow-color); min-width: 380px; resize: both; overflow: hidden; visibility: hidden; opacity: 0; transform: scale(0.95); transition: opacity 0.3s ease, transform 0.3s ease, visibility 0s 0.3s; z-index: 50; }
         .window.visible { visibility: visible; opacity: 1; transform: scale(1); transition-delay: 0s; }
         .window.active { border-color: var(--accent-color); z-index: 51 !important; }
+
         .title-bar { padding: 0.625rem; display: flex; align-items: center; gap: 0.5rem; cursor: move; }
         .control-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; cursor: pointer; }
         .dot-red { background: #ff5f56; }
         .window-content { padding: 0 1rem 1rem 1rem; height: calc(100% - 2.75rem); overflow: auto; }
         .window h3 { margin: 0.625rem 0 1rem 0; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
         
-        /* --- Form Elements & Buttons --- */
         button { font-family: var(--font-family); border: none; border-radius: 0.5rem; padding: 0.625rem 1rem; cursor: pointer; background: var(--button-bg); color: var(--text-color); transition: all 0.2s; font-size: 1rem; }
         button:hover { background: var(--button-bg-hover); }
         button:active { transform: scale(0.95); }
         button.primary { background: var(--accent-color); color: #fff; }
+        
         #reset-settings { background-color: var(--button-bg); color: var(--danger-color); font-weight: 600; margin-top: 1.5rem; width: 100%; }
         #reset-settings:hover { background-color: var(--danger-color); color: #fff; }
+
         input[type="text"], input[type="number"] { width: 100%; padding: 0.625rem; border: 1px solid var(--border-color); border-radius: 0.5rem; background: var(--input-bg); color: var(--text-color); font-size: 1rem; }
+        
         .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--button-bg); transition: all 0.4s; border-radius: 28px; }
@@ -91,7 +90,6 @@
         input:checked + .slider { background-color: var(--accent-color); }
         input:checked + .slider:before { transform: translateX(22px); }
 
-        /* --- App Specific Styles --- */
         .empty-state { text-align: center; color: var(--text-color-secondary); padding: 3rem 1rem;}
         #task-list { list-style-type: none; padding: 0; margin: 0; }
         #task-list li { display: flex; align-items: center; padding: 0.75rem 0.3125rem; border-bottom: 1px solid var(--border-color); transition: all 0.3s ease; }
@@ -113,51 +111,13 @@
         #note-editor { flex-grow: 1; padding-left: 10px; height: 100%;}
         #note-content { width: 100%; height: 100%; border: none; background: transparent; resize: none; color: var(--text-color); font-size: 1em; }
         #note-content:focus { outline: none; }
-
-        /* --- Mobile Compatibility Styles --- */
-        @media (max-width: 768px) {
-            html { font-size: 15px; }
-            .desktop-main-content { padding-top: 5rem; }
-            #welcome-greeting { font-size: 2.2rem; }
-            #welcome-message { font-size: 1.1rem; }
-            #desktop-icons { grid-template-columns: repeat(auto-fill, 80px); }
-            .desktop-icon .icon { font-size: 2.5rem; }
-            .dock { display: none; }
-            .window { resize: none; }
-            .window.visible {
-                position: fixed;
-                width: 100vw !important;
-                height: 100vh !important;
-                top: 0 !important;
-                left: 0 !important;
-                border-radius: 0;
-                transform: none !important;
-                max-height: 100vh !important;
-                transition: opacity 0.2s ease;
-            }
-            .title-bar { padding-left: 1rem; cursor: default; }
-            .control-dot.dot-red {
-                width: 1.5rem; height: 1.5rem;
-                display: flex; align-items: center; justify-content: center;
-                background: transparent;
-            }
-            .dot-red::before {
-                content: '\f060'; /* Font Awesome back arrow */
-                font-family: 'Font Awesome 6 Free';
-                font-weight: 900;
-                color: var(--text-color);
-                font-size: 1.1rem;
-            }
-            #notepad-container { flex-direction: column; }
-            #note-list-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); padding-right: 0; padding-bottom: 10px; height: auto; max-height: 40%; }
-            #note-editor { padding-left: 0; }
-        }
     </style>
 </head>
 <body>
     <div id="intro-screen" class="fullscreen-overlay">
         <div class="intro-content"><div id="intro-logo">EzKen OS</div></div>
     </div>
+    
     <div id="name-prompt-overlay" class="fullscreen-overlay">
         <div id="name-prompt-box">
             <h2>Welcome! What's your name?</h2>
@@ -165,14 +125,15 @@
             <button id="save-name-btn" class="primary">Continue</button>
         </div>
     </div>
-    <div id="notification-container"></div>
 
     <div class="desktop">
         <canvas id="particle-canvas"></canvas>
+
         <div class="top-bar">
             <div class="top-bar-left"><i class="fa-solid fa-layer-group"></i> <b>EzKen OS</b></div>
             <div id="live-clock"></div>
         </div>
+        
         <div class="desktop-main-content">
             <div id="welcome-widget"><div id="welcome-greeting"></div><div id="welcome-message">Let's be productive.</div></div>
             <div id="desktop-icons">
@@ -182,6 +143,7 @@
                  <div class="desktop-icon" data-window="settings-window"><div class="icon"><i class="fa-solid fa-gear"></i></div><div class="label">Settings</div></div>
             </div>
         </div>
+        
         <div id="tasks-window" class="window" style="left: 12%; top: 10%; width: 420px; height: 500px;">
             <div class="title-bar"><span class="control-dot dot-red"></span></div>
             <div class="window-content">
@@ -210,19 +172,15 @@
                 </div>
             </div>
         </div>
-        <div id="settings-window" class="window" style="top: 10%; left: 10%; width: 480px; height: 550px;">
+        <div id="settings-window" class="window" style="top: 10%; left: 10%; width: 480px; height: 520px;">
              <div class="title-bar"><span class="control-dot dot-red"></span></div>
              <div class="window-content" style="display: flex; flex-direction: column;">
                  <h3><i class="fa-solid fa-gear"></i> Settings</h3>
                  <div class="settings-section">
                      <h4>Appearance</h4>
-                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 10px;">
-                        <label>Desktop Animation</label>
-                        <label class="switch"><input type="checkbox" id="desktop-animation-toggle"><span class="slider"></span></label>
-                    </div>
                      <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <label>Mobile Touch Animation</label>
-                        <label class="switch"><input type="checkbox" id="mobile-animation-toggle"><span class="slider"></span></label>
+                        <label>Animated Background</label>
+                        <label class="switch"><input type="checkbox" id="animation-toggle"><span class="slider"></span></label>
                     </div>
                      <br>
                      <div>Wallpaper</div>
@@ -244,6 +202,7 @@
                  </div>
              </div>
         </div>
+        
         <div class="dock">
              <div class="dock-item" data-window="tasks-window" title="Tasks"><i class="fa-solid fa-list-check"></i><div class="active-dot"></div></div>
              <div class="dock-item" data-window="pomodoro-window" title="Pomodoro"><i class="fa-solid fa-clock"></i><div class="active-dot"></div></div>
@@ -261,7 +220,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const App = {
         settings: {},
         windows: {},
-        isMobile: window.innerWidth <= 768,
         
         init() {
             document.querySelectorAll('.window').forEach(winEl => {
@@ -285,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         loadSettings() {
-            const defaults = { username: null, wallpaper: 'url("https://source.unsplash.com/random/1920x1080/?space,stars")', pomoWork: 25, pomoBreak: 5, desktopAnim: true, mobileAnim: true };
+            const defaults = { username: null, wallpaper: 'url("https://source.unsplash.com/random/1920x1080/?space,stars")', pomoWork: 25, pomoBreak: 5, animatedBg: true };
             this.settings = JSON.parse(localStorage.getItem('ezken-os-settings')) || defaults;
             
             if (!this.settings.username || this.settings.username.trim() === '') {
@@ -312,6 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const saveName = () => {
                 let name = input.value.trim();
                 
+                // FIX: Default to "User" if name is blank
                 if (name === '') {
                     this.settings.username = 'User';
                 } else {
@@ -335,7 +294,6 @@ document.addEventListener('DOMContentLoaded', () => {
         continueBoot() {
             document.querySelector('.desktop').style.display = 'block';
             ParticleBackground.init(); 
-            TouchBackground.init();
             this.applySettings();
             this.initInteractions();
             this.initClock();
@@ -350,30 +308,16 @@ document.addEventListener('DOMContentLoaded', () => {
         
         applySettings() {
             document.querySelector('.desktop').style.backgroundImage = this.settings.wallpaper;
-            if (this.isMobile) {
-                this.settings.mobileAnim ? TouchBackground.start() : TouchBackground.stop();
-                ParticleBackground.stop();
+            if (this.settings.animatedBg) {
+                ParticleBackground.start();
             } else {
-                this.settings.desktopAnim ? ParticleBackground.start() : ParticleBackground.stop();
-                TouchBackground.stop();
+                ParticleBackground.stop();
             }
-        },
-
-        showNotification(message) {
-            const container = document.getElementById('notification-container');
-            const notif = document.createElement('div');
-            notif.className = 'notification';
-            notif.textContent = message;
-            container.appendChild(notif);
-
-            setTimeout(() => {
-                notif.classList.add('exit');
-                notif.addEventListener('animationend', () => notif.remove());
-            }, 3000);
         },
 
         initInteractions() {
             document.querySelectorAll('[data-window]').forEach(item => item.addEventListener('click', (e) => this.openApp(e.currentTarget)));
+            document.getElementById('power-off-btn')?.addEventListener('click', this.shutdown);
             Object.values(this.windows).forEach(winData => this.makeWindowDraggable(winData.el));
         },
         
@@ -383,7 +327,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const winEl = this.windows[windowId].el;
             const dockItem = document.querySelector(`.dock-item[data-window='${windowId}']`);
             this.setActiveWindow(winEl);
-            if (dockItem && !this.isMobile) dockItem.classList.add('active');
+            if (dockItem) dockItem.classList.add('active');
             winEl.classList.add('visible');
         },
         
@@ -410,10 +354,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.window').forEach(w => w.classList.remove('active'));
             if(winEl) {
                  winEl.classList.add('active');
-                 if (!this.isMobile) {
-                    const maxZ = Array.from(document.querySelectorAll('.window')).reduce((max, w) => Math.max(max, parseInt(w.style.zIndex) || 50), 50);
-                    winEl.style.zIndex = maxZ + 1;
-                 }
+                 const maxZ = Array.from(document.querySelectorAll('.window')).reduce((max, w) => Math.max(max, parseInt(w.style.zIndex) || 50), 50);
+                 winEl.style.zIndex = maxZ + 1;
             }
         },
         
@@ -421,176 +363,53 @@ document.addEventListener('DOMContentLoaded', () => {
             const titleBar = winEl.querySelector(".title-bar");
             const closeButton = winEl.querySelector('.dot-red');
             const winData = this.windows[winEl.id];
-            
             closeButton.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const dockItem = document.querySelector(`.dock-item[data-window='${winEl.id}']`);
-                if(dockItem && !this.isMobile) dockItem.classList.remove('active');
+                if(dockItem) dockItem.classList.remove('active');
                 winEl.classList.remove('visible');
             });
-            
-            if (!this.isMobile) {
-                titleBar.addEventListener('mousedown', dragStart);
-                winEl.addEventListener('mousedown', () => this.setActiveWindow(winEl));
-                function dragStart(e) {
-                    e.preventDefault();
-                    let initialMouseX = e.clientX; let initialMouseY = e.clientY;
-                    function drag(e) {
-                        let dx = e.clientX - initialMouseX; let dy = e.clientY - initialMouseY;
-                        winData.x += dx; winData.y += dy;
-                        winEl.style.transform = `translate(${winData.x}px, ${winData.y}px) scale(1)`;
-                        initialMouseX = e.clientX; initialMouseY = e.clientY;
-                    }
-                    function dragEnd() { document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', dragEnd); }
-                    document.addEventListener('mousemove', drag);
-                    document.addEventListener('mouseup', dragEnd);
+            titleBar.addEventListener('mousedown', dragStart);
+            winEl.addEventListener('mousedown', () => this.setActiveWindow(winEl));
+            function dragStart(e) {
+                e.preventDefault();
+                let initialMouseX = e.clientX; let initialMouseY = e.clientY;
+                function drag(e) {
+                    let dx = e.clientX - initialMouseX; let dy = e.clientY - initialMouseY;
+                    winData.x += dx; winData.y += dy;
+                    winEl.style.transform = `translate(${winData.x}px, ${winData.y}px) scale(1)`;
+                    initialMouseX = e.clientX; initialMouseY = e.clientY;
                 }
+                function dragEnd() { document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', dragEnd); }
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', dragEnd);
             }
         },
         shutdown() { /* ... */ }
     };
-
+    
     const ParticleBackground = {
         canvas: null, ctx: null, particles: [], mouse: { x: null, y: null, radius: 150 }, animationFrameId: null,
-        init() { /* ... */ }, start() { /* ... */ }, stop() { /* ... */ }, handleResize() { /* ... */ }, createParticles() { /* ... */ }, animate() { /* ... */ }
-    };
-    
-    const TouchBackground = {
-        canvas: null, ctx: null, ripples: [], animationFrameId: null,
+        
         init() {
-            if (!App.isMobile) return;
-            this.canvas = document.getElementById('particle-canvas');
-            if (!this.canvas) return;
-            this.ctx = this.canvas.getContext('2d');
-            this.handleResize();
-            window.addEventListener('resize', () => this.handleResize());
-            this.canvas.addEventListener('touchstart', (e) => this.createRipple(e));
-            this.canvas.addEventListener('touchmove', (e) => this.createRipple(e));
-        },
-        start() {
-            if (!App.isMobile || !this.canvas) return;
-            this.canvas.style.display = 'block';
-            if (!this.animationFrameId) this.animate();
-        },
-        stop() {
-            if (!this.canvas) return;
-            this.canvas.style.display = 'none';
-            cancelAnimationFrame(this.animationFrameId);
-            this.animationFrameId = null;
-        },
-        handleResize() {
-            this.canvas.width = window.innerWidth;
-            this.canvas.height = window.innerHeight;
-        },
-        createRipple(e) {
-            e.preventDefault();
-            for (let touch of e.changedTouches) {
-                this.ripples.push({
-                    x: touch.clientX, y: touch.clientY,
-                    radius: 0, maxRadius: 50,
-                    opacity: 1, speed: 0.8
-                });
-            }
-        },
-        animate() {
-            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            for (let i = this.ripples.length - 1; i >= 0; i--) {
-                let r = this.ripples[i];
-                r.radius += r.speed;
-                r.opacity -= 0.02;
-                if (r.opacity <= 0) {
-                    this.ripples.splice(i, 1);
-                    continue;
-                }
-                this.ctx.strokeStyle = `rgba(255, 255, 255, ${r.opacity})`;
-                this.ctx.lineWidth = 2;
-                this.ctx.beginPath();
-                this.ctx.arc(r.x, r.y, r.radius, 0, Math.PI * 2);
-                this.ctx.stroke();
-            }
-            this.animationFrameId = requestAnimationFrame(() => this.animate());
-        }
-    };
-
-    const Settings = {
-        init() {
-            this.elements = { 
-                desktopAnimToggle: document.getElementById('desktop-animation-toggle'),
-                mobileAnimToggle: document.getElementById('mobile-animation-toggle'),
-                wallpapers: document.querySelector('.wallpaper-options'), 
-                pomoWork: document.getElementById('pomo-work-input'), 
-                pomoBreak: document.getElementById('pomo-break-input'), 
-                username: document.getElementById('username-input'),
-                resetBtn: document.getElementById('reset-settings') 
-            };
-            this.wallpapers = { 'Stars': 'url("https://source.unsplash.com/random/1920x1080/?space,stars")', 'Abstract': 'url("https://source.unsplash.com/random/1920x1080/?abstract,gradient")', 'Beach': 'url("https://source.unsplash.com/random/1920x1080/?beach,sunset")', 'City': 'url("https://source.unsplash.com/random/1920x1080/?city,night")' };
-            this.renderWallpapers(); this.updateUI(); this.addListeners();
-        },
-        renderWallpapers() { this.elements.wallpapers.innerHTML = Object.entries(this.wallpapers).map(([name, url]) => `<div class="wallpaper-thumb" style="background-image: ${url}" data-url='${url}' title="${name}"></div>`).join(''); },
-        updateUI() {
-            this.elements.pomoWork.value = App.settings.pomoWork;
-            this.elements.pomoBreak.value = App.settings.pomoBreak;
-            this.elements.wallpapers.querySelectorAll('.wallpaper-thumb').forEach(thumb => thumb.classList.toggle('selected', thumb.dataset.url === App.settings.wallpaper));
-            this.elements.desktopAnimToggle.checked = App.settings.desktopAnim;
-            this.elements.mobileAnimToggle.checked = App.settings.mobileAnim;
-            this.elements.username.value = App.settings.username || '';
-        },
-        addListeners() {
-            this.elements.desktopAnimToggle.addEventListener('change', (e) => {
-                if(App.isMobile) {
-                    e.target.checked = !e.target.checked; // Revert change
-                    App.showNotification("This feature is only available on desktop.");
-                    return;
-                }
-                App.settings.desktopAnim = e.target.checked;
-                App.applySettings(); App.saveSettings();
-            });
-            this.elements.mobileAnimToggle.addEventListener('change', (e) => {
-                if(!App.isMobile) {
-                    e.target.checked = !e.target.checked; // Revert change
-                    App.showNotification("This feature is only available on mobile.");
-                    return;
-                }
-                App.settings.mobileAnim = e.target.checked;
-                App.applySettings(); App.saveSettings();
-            });
-            this.elements.username.addEventListener('input', () => {
-                App.settings.username = this.elements.username.value.trim();
-                App.saveSettings();
-                App.initWelcomeWidget();
-            });
-            this.elements.wallpapers.addEventListener('click', (e) => { if (e.target.classList.contains('wallpaper-thumb')) { App.settings.wallpaper = e.target.dataset.url; App.applySettings(); App.saveSettings(); this.updateUI(); } });
-            this.elements.pomoWork.addEventListener('input', () => { App.settings.pomoWork = parseInt(this.elements.pomoWork.value) || 25; PomodoroTimer.reset(); App.saveSettings(); });
-            this.elements.pomoBreak.addEventListener('input', () => { App.settings.pomoBreak = parseInt(this.elements.pomoBreak.value) || 5; PomodoroTimer.reset(); App.saveSettings(); });
-            this.elements.resetBtn.addEventListener('click', () => { if (confirm("This will erase all your tasks, notes, and settings. Are you sure?")) { localStorage.clear(); window.location.reload(); } });
-        }
-    };
-
-    // Other modules like TaskManager, PomodoroTimer, Notepad remain unchanged
-    const TaskManager = { /* ... previous code ... */ };
-    const PomodoroTimer = { /* ... previous code ... */ };
-    const Notepad = { /* ... previous code ... */ };
-    
-    // Copying the full implementation of the unchanged modules
-    Object.assign(ParticleBackground, {
-        init() {
-            if (App.isMobile) return;
             this.canvas = document.getElementById('particle-canvas');
             if (!this.canvas) return;
             this.ctx = this.canvas.getContext('2d');
             this.handleResize();
             window.addEventListener('resize', () => this.handleResize());
             document.querySelector('.desktop').addEventListener('mousemove', (e) => {
-                this.mouse.x = e.clientX; this.mouse.y = e.clientY;
+                this.mouse.x = e.x;
+                this.mouse.y = e.y;
             });
-            document.querySelector('.desktop').addEventListener('mouseleave', () => {
-                this.mouse.x = null; this.mouse.y = null;
+             document.querySelector('.desktop').addEventListener('mouseleave', () => {
+                this.mouse.x = null;
+                this.mouse.y = null;
             });
         },
         start() {
-            if (App.isMobile || !this.canvas) return;
+            if (!this.canvas) return;
             this.canvas.style.display = 'block';
-            if (!this.animationFrameId) this.animate();
+            if (!this.animationFrameId) { this.animate(); }
         },
         stop() {
             if (!this.canvas) return;
@@ -599,7 +418,6 @@ document.addEventListener('DOMContentLoaded', () => {
             this.animationFrameId = null;
         },
         handleResize() {
-            if (App.isMobile || !this.canvas) return;
             this.canvas.width = window.innerWidth;
             this.canvas.height = window.innerHeight;
             this.createParticles();
@@ -627,33 +445,64 @@ document.addEventListener('DOMContentLoaded', () => {
                 for (let j = i; j < this.particles.length; j++) {
                     let p2 = this.particles[j];
                     let dx = p.x - p2.x; let dy = p.y - p2.y;
-                    let distance = Math.sqrt(dx * dx + dy * dy);
+                    let distance = Math.sqrt(dx*dx + dy*dy);
                     if (distance < 120) {
-                        this.ctx.beginPath();
-                        this.ctx.strokeStyle = `rgba(255,255,255,${0.8 - distance / 120})`;
-                        this.ctx.lineWidth = 0.2;
-                        this.ctx.moveTo(p.x, p.y);
-                        this.ctx.lineTo(p2.x, p2.y);
-                        this.ctx.stroke();
+                        this.ctx.beginPath(); this.ctx.strokeStyle = `rgba(255,255,255,${0.8 - distance/120})`;
+                        this.ctx.lineWidth = 0.2; this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(p2.x, p2.y); this.ctx.stroke();
                     }
                 }
                 if (this.mouse.x) {
                     let dxMouse = p.x - this.mouse.x; let dyMouse = p.y - this.mouse.y;
-                    let distMouse = Math.sqrt(dxMouse * dxMouse + dyMouse * dyMouse);
+                    let distMouse = Math.sqrt(dxMouse*dxMouse + dyMouse*dyMouse);
                     if (distMouse < this.mouse.radius) {
-                        this.ctx.beginPath();
-                        this.ctx.strokeStyle = `rgba(255,255,255,${1 - distMouse / this.mouse.radius})`;
-                        this.ctx.lineWidth = 0.4;
-                        this.ctx.moveTo(p.x, p.y);
-                        this.ctx.lineTo(this.mouse.x, this.mouse.y);
-                        this.ctx.stroke();
+                        this.ctx.beginPath(); this.ctx.strokeStyle = `rgba(255,255,255,${1 - distMouse/this.mouse.radius})`;
+                        this.ctx.lineWidth = 0.4; this.ctx.moveTo(p.x, p.y); this.ctx.lineTo(this.mouse.x, this.mouse.y); this.ctx.stroke();
                     }
                 }
             }
             this.animationFrameId = requestAnimationFrame(() => this.animate());
         }
-    });
-    Object.assign(TaskManager, {
+    };
+
+    const Settings = {
+        init() {
+            this.elements = { 
+                animationToggle: document.getElementById('animation-toggle'), 
+                wallpapers: document.querySelector('.wallpaper-options'), 
+                pomoWork: document.getElementById('pomo-work-input'), 
+                pomoBreak: document.getElementById('pomo-break-input'), 
+                username: document.getElementById('username-input'),
+                resetBtn: document.getElementById('reset-settings') 
+            };
+            this.wallpapers = { 'Stars': 'url("https://source.unsplash.com/random/1920x1080/?space,stars")', 'Abstract': 'url("https://source.unsplash.com/random/1920x1080/?abstract,gradient")', 'Beach': 'url("https://source.unsplash.com/random/1920x1080/?beach,sunset")', 'City': 'url("https://source.unsplash.com/random/1920x1080/?city,night")' };
+            this.renderWallpapers(); this.updateUI(); this.addListeners();
+        },
+        renderWallpapers() { this.elements.wallpapers.innerHTML = Object.entries(this.wallpapers).map(([name, url]) => `<div class="wallpaper-thumb" style="background-image: ${url}" data-url='${url}' title="${name}"></div>`).join(''); },
+        updateUI() {
+            this.elements.pomoWork.value = App.settings.pomoWork;
+            this.elements.pomoBreak.value = App.settings.pomoBreak;
+            this.elements.wallpapers.querySelectorAll('.wallpaper-thumb').forEach(thumb => thumb.classList.toggle('selected', thumb.dataset.url === App.settings.wallpaper));
+            this.elements.animationToggle.checked = App.settings.animatedBg;
+            this.elements.username.value = App.settings.username || '';
+        },
+        addListeners() {
+            this.elements.animationToggle.addEventListener('change', () => {
+                App.settings.animatedBg = this.elements.animationToggle.checked;
+                App.applySettings(); App.saveSettings();
+            });
+            this.elements.username.addEventListener('input', () => {
+                App.settings.username = this.elements.username.value.trim();
+                App.saveSettings();
+                App.initWelcomeWidget();
+            });
+            this.elements.wallpapers.addEventListener('click', (e) => { if (e.target.classList.contains('wallpaper-thumb')) { App.settings.wallpaper = e.target.dataset.url; App.applySettings(); App.saveSettings(); this.updateUI(); } });
+            this.elements.pomoWork.addEventListener('input', () => { App.settings.pomoWork = parseInt(this.elements.pomoWork.value) || 25; PomodoroTimer.reset(); App.saveSettings(); });
+            this.elements.pomoBreak.addEventListener('input', () => { App.settings.pomoBreak = parseInt(this.elements.pomoBreak.value) || 5; PomodoroTimer.reset(); App.saveSettings(); });
+            this.elements.resetBtn.addEventListener('click', () => { if (confirm("This will erase all your tasks, notes, and settings. Are you sure?")) { localStorage.clear(); window.location.reload(); } });
+        }
+    };
+
+    const TaskManager = {
         tasks: [],
         init() {
             this.elements = { input: document.getElementById('task-input'), list: document.getElementById('task-list'), progressContainer: document.getElementById('task-progress-container'), listWrapper: document.getElementById('task-list-wrapper') };
@@ -699,8 +548,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 }, { once: true });
             }
         }
-    });
-    Object.assign(PomodoroTimer, {
+    };
+
+    const PomodoroTimer = {
         interval: null, timeLeft: 0, mode: 'work', isRunning: false,
         init() {
             this.elements = { time: document.getElementById('pomodoro-time'), mode: document.getElementById('pomodoro-mode'), startPauseBtn: document.getElementById('pomo-start-pause'), resetBtn: document.getElementById('pomo-reset'), endSound: document.getElementById('sound-pomo-end') };
@@ -712,8 +562,9 @@ document.addEventListener('DOMContentLoaded', () => {
         toggle() { this.isRunning = !this.isRunning; if (this.isRunning) { this.interval = setInterval(() => { this.timeLeft--; if (this.timeLeft < 0) this.switchMode(); this.updateDisplay(); }, 1000); } else { clearInterval(this.interval); } this.updateDisplay(); },
         switchMode() { this.elements.endSound.play(); this.mode = this.mode === 'work' ? 'break' : 'work'; this.timeLeft = (this.mode === 'work' ? App.settings.pomoWork : App.settings.pomoBreak) * 60; },
         reset() { clearInterval(this.interval); this.isRunning = false; this.mode = 'work'; this.timeLeft = App.settings.pomoWork * 60; this.updateDisplay(); document.title = 'EzKen OS'; }
-    });
-    Object.assign(Notepad, {
+    };
+
+    const Notepad = {
         notes: [], activeNoteId: null,
         init() {
             this.elements = { list: document.getElementById('note-list'), content: document.getElementById('note-content'), newBtn: document.getElementById('new-note-btn') };
@@ -731,7 +582,7 @@ document.addEventListener('DOMContentLoaded', () => {
         createNote() { const newNote = { id: Date.now(), content: ''}; this.notes.unshift(newNote); this.activeNoteId = newNote.id; this.save(); this.renderList(); this.openNote(newNote.id); this.elements.content.focus(); },
         openNote(id) { this.activeNoteId = id; const note = this.notes.find(n => n.id == id); if(note){ this.elements.content.value = note.content; } this.renderList(); },
         saveNote() { const note = this.notes.find(n => n.id == this.activeNoteId); if(note) { note.content = this.elements.content.value; this.save(); this.renderList(); }}
-    });
+    };
 
     App.init();
 });
