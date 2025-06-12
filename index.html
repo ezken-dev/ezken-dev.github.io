@@ -115,7 +115,7 @@
             color: #fff;
         }
         
-        /* Enhanced dock styling */
+        /* Enhanced dock styling (desktop only) */
         .dock {
             position: absolute;
             bottom: 1rem;
@@ -247,11 +247,17 @@
         /* Mobile styles */
         @media (max-width: 768px) {
             html { font-size: 14px; }
+            
+            /* Hide the dock on mobile */
+            .dock {
+                display: none;
+            }
+
             .desktop-main-content { 
                 padding-top: 3.5rem; 
                 padding-left: 0.5rem; 
-                /* Increased padding-bottom for mobile, particularly for iOS browser UI */
-                padding-bottom: calc(10rem + env(safe-area-inset-bottom)); /* Adjusted for more clearance */
+                /* Adjusted padding-bottom for mobile without the dock */
+                padding-bottom: calc(2rem + env(safe-area-inset-bottom)); 
             }
             #welcome-greeting { font-size: 2.2rem !important; margin-bottom: 0.5rem; }
             #welcome-message { font-size: 1.2rem !important; margin-bottom: 1.5rem; }
@@ -259,34 +265,23 @@
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 1rem; 
                 padding: 0 0.5rem; 
-                max-height: 60vh; /* Adjust if icons are still getting cut off */
+                max-height: 70vh; /* Increased max-height for icons since dock is gone */
                 overflow-y: auto; 
-                /* Allow icons to scroll if they exceed the max-height */
                 padding-bottom: 2rem; /* Additional padding for scrollable area */
             }
             .desktop-icon { padding: 0.8rem; }
             .desktop-icon .icon { font-size: 2.5rem !important; width: 60px; height: 60px; }
             .desktop-icon .label { font-size: 0.9rem !important; }
-            .dock {
-                bottom: max(1rem, env(safe-area-inset-bottom));
-                padding: 0.75rem;
-                padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
-                border-radius: 1rem;
-                max-width: 95%;
-                overflow-x: auto;
-                scrollbar-width: none;
-                /* Add pointer-events: none to prevent capturing touches that should go to the browser UI */
-                pointer-events: auto; /* Re-enable pointer events for the dock itself */
-            }
-            /* Hide the default browser bottom UI if needed, but this is usually not recommended or possible */
-            /* For the dock itself, ensure it's on top of any other content */
-            .dock::-webkit-scrollbar { display: none; }
+            
+            /* Dock-related styles (already hidden by .dock {display:none;} but kept for completeness) */
             .dock-item {
                 width: 3.2rem;
                 height: 3.2rem;
                 font-size: 1.6rem;
             }
             .dock-item:hover { transform: scale(1.2) translateY(-5px) !important; }
+            /* End dock-related styles */
+
             .window { 
                 min-width: 90% !important; 
                 min-height: 70% !important; 
@@ -322,16 +317,11 @@
 
             /* iOS specific adjustments */
             body.is-ios .desktop-main-content {
-                /* Even more padding for iOS if necessary, accounting for larger browser chrome */
-                padding-bottom: calc(14rem + env(safe-area-inset-bottom)); /* Increased significantly */
+                /* Slightly more padding for iOS due to larger browser chrome at the bottom */
+                padding-bottom: calc(4rem + env(safe-area-inset-bottom)); 
             }
 
-            body.is-ios .dock {
-                /* Ensure dock is positioned relative to the bottom safe area */
-                bottom: env(safe-area-inset-bottom, 1rem); /* Fallback to 1rem if not supported */
-                /* For iOS, force the dock to be visible by increasing its z-index if needed */
-                z-index: 999; 
-            }
+            /* No .dock adjustments for iOS needed as it's now hidden */
 
             body.is-ios .window-content {
                 /* Ensure content within windows has enough space on iOS */
