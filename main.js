@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // OS Functionality
     const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
 
-    // New: OS Detection
+    // OS Detection
     const detectOS = () => {
         const userAgent = navigator.userAgent || navigator.vendor || window.opera;
         if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
@@ -38,7 +38,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (currentOS === 'Android') {
         document.body.classList.add('is-android');
     }
-    // End New: OS Detection
+    // End OS Detection
 
     const App = {
         settings: {}, windows: {}, touchStartY: 0, isDraggingKanbanCard: false,
@@ -160,7 +160,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 })
             );
             
-            document.getElementById('power-off-btn')?.addEventListener('click', this.shutdown);
+            // Power off button is part of the dock, which is hidden on mobile
+            // This listener remains functional for desktop
+            document.getElementById('power-off-btn')?.addEventListener('click', this.shutdown); 
             
             Object.values(this.windows).forEach(winData => 
                 this.makeWindowDraggable(winData.el)
@@ -169,6 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Add click sounds to all buttons
             document.querySelectorAll('button').forEach(btn => {
                 btn.addEventListener('click', () => {
+                    // Prevent power-off button from playing 'open' sound if dock is active on desktop
                     if(btn.id !== 'power-off-btn') {
                         sounds.open.play();
                     }
@@ -192,6 +195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             this.setActiveWindow(winEl);
             
+            // Check if dockItem exists before adding active class (it won't on mobile)
             if (dockItem) dockItem.classList.add('active');
             
             winEl.classList.add('visible');
@@ -205,6 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             sounds.exit.play();
             
             const dockItem = document.querySelector(`.dock-item[data-window='${winEl.id}']`);
+            // Check if dockItem exists before removing active class
             if (dockItem) dockItem.classList.remove('active');
             
             winEl.classList.remove('visible');
@@ -238,8 +243,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         },
         makeWindowDraggable(winEl) {
-            if (isMobile()) return;
-            
+            if (isMobile()) return; // Dragging is disabled for mobile windows
+
             const titleBar = winEl.querySelector(".title-bar"); 
             const closeButtons = winEl.querySelectorAll('.dot-red, .mobile-close-btn'); 
             const winData = this.windows[winEl.id];
@@ -280,17 +285,39 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.window').forEach(winEl => { 
                 winEl.addEventListener('touchstart', (e) => { 
                     if (App.isDraggingKanbanCard) return;
-                    this.touchStartY = e.touches[0].clientY; 
-                }); 
+                    // Ensure the touch starts near the top of the window, not just anywhere
+                    if (e.touches[0].clientY < winEl.offsetTop + 50) { // 50px from top of window
+                        this.touchStartY = e.touches[0].clientY; 
+                    } else {
+                        this.touchStartY = null; // Ignore swipe if not near the top
+                    }
+                }, { passive: false }); 
+
                 winEl.addEventListener('touchmove', (e) => { 
-                    if (App.isDraggingKanbanCard) return;
-                    // Only close if swiping down significantly from the top of the window,
-                    // to prevent interference with internal scrolling or other gestures.
+                    if (App.isDraggingKanbanCard || this.touchStartY === null) return;
+                    
                     const swipeDistance = e.touches[0].clientY - this.touchStartY;
-                    if (swipeDistance > 50 && e.target.closest('.window-content').scrollTop === 0) { 
-                        this.closeApp(winEl); 
+                    if (swipeDistance > 50) { // Swipe down threshold
+                        // Check if the current target is not a scrollable element or it's at its scroll limit
+                        const target = e.target;
+                        const isScrollable = target.scrollHeight > target.clientHeight;
+                        const isAtTop = target.scrollTop === 0;
+
+                        // Prevent closing if we're scrolling within a scrollable area AND not at the top
+                        if (isScrollable && !isAtTop) {
+                            // Let the browser handle scrolling
+                        } else {
+                            // Otherwise, close the app
+                            e.preventDefault(); // Prevent default scroll/bounce
+                            this.closeApp(winEl); 
+                            this.touchStartY = null; // Reset to prevent multiple triggers
+                        }
                     } 
-                }, { passive: false }); // Use passive: false to allow e.preventDefault()
+                }, { passive: false }); 
+
+                winEl.addEventListener('touchend', () => {
+                    this.touchStartY = null; // Reset after touch ends
+                });
             }); 
         },
         shutdown() { 
