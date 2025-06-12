@@ -719,18 +719,26 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const KanbanBoard = {
         data: { columns: [] },
-        draggedItem: { cardId: null, sourceColumnId: null },
+        draggedItem: { cardId: null, sourceColumnId: null, element: null, ghost: null },
         init() { 
             this.elements = { container: document.getElementById('kanban-container') }; 
             this.load(); 
             this.render(); 
             
+            // --- Event Listeners ---
             this.elements.container.addEventListener('click', e => this.handleClick(e)); 
+            
+            // Desktop Drag & Drop
             this.elements.container.addEventListener('dragstart', e => this.handleDragStart(e)); 
             this.elements.container.addEventListener('dragend', e => this.handleDragEnd(e)); 
             this.elements.container.addEventListener('dragover', e => this.handleDragOver(e)); 
             this.elements.container.addEventListener('dragleave', e => this.handleDragLeave(e)); 
-            this.elements.container.addEventListener('drop', e => this.handleDrop(e)); 
+            this.elements.container.addEventListener('drop', e => this.handleDrop(e));
+
+            // Mobile Drag & Drop
+            this.elements.container.addEventListener('touchstart', e => this.handleTouchStart(e), { passive: false });
+            this.elements.container.addEventListener('touchmove', e => this.handleTouchMove(e), { passive: false });
+            this.elements.container.addEventListener('touchend', e => this.handleTouchEnd(e));
         },
         load() {
             const savedData = JSON.parse(localStorage.getItem('ezken-os-kanban'));
@@ -751,11 +759,20 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('ezken-os-kanban', JSON.stringify(this.data)); 
         },
         render() { 
+            const scrollStates = [];
+            this.elements.container.querySelectorAll('.kanban-cards').forEach(el => {
+                scrollStates.push(el.scrollTop);
+            });
+
             this.elements.container.innerHTML = ` 
                 <div class="kanban-board"> 
                     ${this.data.columns.map(col => this.renderColumn(col)).join('')} 
                 </div> 
             `; 
+
+            this.elements.container.querySelectorAll('.kanban-cards').forEach((el, index) => {
+                el.scrollTop = scrollStates[index] || 0;
+            });
         },
         renderColumn(column) { 
             return ` 
@@ -783,16 +800,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 if (text && text.trim()) { 
                     const column = this.data.columns.find(c => c.id == columnId); 
-                    column.cards.push({ 
-                        id: Date.now(), 
-                        text: text.trim() 
-                    }); 
+                    column.cards.push({ id: Date.now(), text: text.trim() }); 
                     this.save(); 
                     this.render(); 
                 }
             }
             
             if (e.target.closest('.delete-card-btn')) {
+                e.stopPropagation();
                 const cardId = e.target.closest('.kanban-card').dataset.cardId; 
                 this.data.columns.forEach(col => { 
                     col.cards = col.cards.filter(c => c.id != cardId); 
@@ -801,17 +816,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 this.render();
             }
         },
-        handleDragStart(e) {
+        
+        // --- Desktop Drag Logic ---
+        handleDragStart(e) { 
             if (e.target.classList.contains('kanban-card')) {
                 setTimeout(() => e.target.classList.add('dragging'), 0);
                 this.draggedItem.cardId = e.target.dataset.cardId;
                 this.draggedItem.sourceColumnId = e.target.closest('.kanban-column').dataset.columnId;
-                App.isDraggingKanbanCard = true; // Set flag for mobile
+                App.isDraggingKanbanCard = true;
             }
         },
         handleDragEnd(e) { 
             e.target.classList.remove('dragging'); 
-            App.isDraggingKanbanCard = false; // Clear flag
+            App.isDraggingKanbanCard = false;
         },
         handleDragOver(e) { 
             const column = e.target.closest('.kanban-column'); 
@@ -834,17 +851,106 @@ document.addEventListener('DOMContentLoaded', () => {
             columnEl.classList.remove('drag-over');
             
             const targetColumnId = columnEl.dataset.columnId;
-            if (this.draggedItem.sourceColumnId === targetColumnId) return;
+            this.moveCard(targetColumnId);
+        },
+
+        // --- Mobile Touch Logic ---
+        handleTouchStart(e) {
+            const card = e.target.closest('.kanban-card');
+            if (!card || e.target.closest('.delete-card-btn')) return;
+
+            e.preventDefault();
+            App.isDraggingKanbanCard = true;
+            
+            this.draggedItem.element = card;
+            this.draggedItem.cardId = card.dataset.cardId;
+            this.draggedItem.sourceColumnId = card.closest('.kanban-column').dataset.columnId;
+
+            const rect = card.getBoundingClientRect();
+            this.draggedItem.ghost = card.cloneNode(true);
+            this.draggedItem.ghost.classList.add('kanban-card-ghost');
+            document.body.appendChild(this.draggedItem.ghost);
+            
+            const touch = e.touches[0];
+            this.draggedItem.offsetX = touch.clientX - rect.left;
+            this.draggedItem.offsetY = touch.clientY - rect.top;
+
+            this.draggedItem.ghost.style.width = `${rect.width}px`;
+            this.draggedItem.ghost.style.left = `${touch.clientX - this.draggedItem.offsetX}px`;
+            this.draggedItem.ghost.style.top = `${touch.clientY - this.draggedItem.offsetY}px`;
+            
+            card.classList.add('dragging');
+        },
+
+        handleTouchMove(e) {
+            if (!this.draggedItem.ghost) return;
+            e.preventDefault();
+
+            const touch = e.touches[0];
+            this.draggedItem.ghost.style.left = `${touch.clientX - this.draggedItem.offsetX}px`;
+            this.draggedItem.ghost.style.top = `${touch.clientY - this.draggedItem.offsetY}px`;
+
+            this.draggedItem.ghost.style.visibility = 'hidden';
+            const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            this.draggedItem.ghost.style.visibility = 'visible';
+
+            document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+            
+            const column = elementUnder.closest('.kanban-column');
+            if (column) {
+                column.classList.add('drag-over');
+            }
+        },
+
+        handleTouchEnd(e) {
+            if (!this.draggedItem.ghost) return;
+
+            App.isDraggingKanbanCard = false;
+            const touch = e.changedTouches[0];
+            
+            this.draggedItem.ghost.style.visibility = 'hidden';
+            const elementUnder = document.elementFromPoint(touch.clientX, touch.clientY);
+            this.draggedItem.ghost.style.visibility = 'visible';
+
+            const targetColumn = elementUnder ? elementUnder.closest('.kanban-column') : null;
+
+            if (targetColumn) {
+                this.moveCard(targetColumn.dataset.columnId);
+            }
+
+            // Cleanup
+            document.body.removeChild(this.draggedItem.ghost);
+            this.draggedItem.element.classList.remove('dragging');
+            document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
+            this.draggedItem = { cardId: null, sourceColumnId: null, element: null, ghost: null };
+        },
+
+        // --- Universal Card Moving Logic ---
+        moveCard(targetColumnId) {
+            if (!targetColumnId || this.draggedItem.sourceColumnId === targetColumnId) {
+                return;
+            }
             
             const sourceCol = this.data.columns.find(c => c.id == this.draggedItem.sourceColumnId);
             const targetCol = this.data.columns.find(c => c.id == targetColumnId);
-            const draggedCard = sourceCol.cards.find(c => c.id == this.draggedItem.cardId);
             
-            sourceCol.cards = sourceCol.cards.filter(c => c.id != this.draggedItem.cardId);
-            targetCol.cards.push(draggedCard);
+            if (!sourceCol || !targetCol) return;
+
+            let draggedCardIndex = -1;
+            const draggedCard = sourceCol.cards.find((card, index) => {
+                if (card.id == this.draggedItem.cardId) {
+                    draggedCardIndex = index;
+                    return true;
+                }
+                return false;
+            });
             
-            this.save(); 
-            this.render();
+            if (draggedCard) {
+                sourceCol.cards.splice(draggedCardIndex, 1);
+                targetCol.cards.push(draggedCard);
+                this.save(); 
+                this.render();
+            }
         }
     };
 
