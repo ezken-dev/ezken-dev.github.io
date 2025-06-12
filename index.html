@@ -102,10 +102,21 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
+
+        /* --- FIX: Make Font Awesome icons visible --- */
+        .desktop-icon .icon i {
+            color: var(--accent-color); /* Set a distinct color for the icons */
+        }
+        /* --- END FIX --- */
         
         .desktop-icon:hover .icon {
             background: var(--accent-color);
             transform: scale(1.05);
+        }
+
+        /* When the icon container is hovered, change the icon color to white */
+        .desktop-icon:hover .icon i {
+            color: #fff;
         }
         
         .desktop-icon .label {
