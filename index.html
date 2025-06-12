@@ -250,7 +250,7 @@
             .desktop-main-content { 
                 padding-top: 3.5rem; 
                 padding-left: 0.5rem; 
-                padding-bottom: 5rem; /* <-- THIS IS THE FIX */
+                padding-bottom: calc(8rem + env(safe-area-inset-bottom));
             }
             #welcome-greeting { font-size: 2.2rem !important; margin-bottom: 0.5rem; }
             #welcome-message { font-size: 1.2rem !important; margin-bottom: 1.5rem; }
@@ -258,9 +258,21 @@
             .desktop-icon { padding: 0.8rem; }
             .desktop-icon .icon { font-size: 2.5rem !important; width: 60px; height: 60px; }
             .desktop-icon .label { font-size: 0.9rem !important; }
-            .dock { bottom: 0.5rem; padding: 0.5rem; border-radius: 1rem; max-width: 95%; overflow-x: auto; scrollbar-width: none; }
+            .dock {
+                bottom: max(1rem, env(safe-area-inset-bottom));
+                padding: 0.75rem;
+                padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+                border-radius: 1rem;
+                max-width: 95%;
+                overflow-x: auto;
+                scrollbar-width: none;
+            }
             .dock::-webkit-scrollbar { display: none; }
-            .dock-item { width: 3.5rem; height: 3.5rem; font-size: 1.8rem; }
+            .dock-item {
+                width: 3.2rem;
+                height: 3.2rem;
+                font-size: 1.6rem;
+            }
             .dock-item:hover { transform: scale(1.2) translateY(-5px) !important; }
             .window { min-width: 90% !important; min-height: 70% !important; max-width: 95% !important; max-height: 85% !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) scale(0.95) !important; resize: none; }
             .window.visible { transform: translate(-50%, -50%) scale(1) !important; }
