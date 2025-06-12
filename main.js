@@ -19,6 +19,27 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // OS Functionality
     const isMobile = () => window.matchMedia("(max-width: 768px)").matches;
+
+    // New: OS Detection
+    const detectOS = () => {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+            return 'iOS';
+        }
+        if (/android/i.test(userAgent)) {
+            return 'Android';
+        }
+        return 'Desktop';
+    };
+
+    const currentOS = detectOS();
+    if (currentOS === 'iOS') {
+        document.body.classList.add('is-ios');
+    } else if (currentOS === 'Android') {
+        document.body.classList.add('is-android');
+    }
+    // End New: OS Detection
+
     const App = {
         settings: {}, windows: {}, touchStartY: 0, isDraggingKanbanCard: false,
         init() {
@@ -263,10 +284,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }); 
                 winEl.addEventListener('touchmove', (e) => { 
                     if (App.isDraggingKanbanCard) return;
-                    if (e.touches[0].clientY - this.touchStartY > 50) { 
+                    // Only close if swiping down significantly from the top of the window,
+                    // to prevent interference with internal scrolling or other gestures.
+                    const swipeDistance = e.touches[0].clientY - this.touchStartY;
+                    if (swipeDistance > 50 && e.target.closest('.window-content').scrollTop === 0) { 
                         this.closeApp(winEl); 
                     } 
-                }); 
+                }, { passive: false }); // Use passive: false to allow e.preventDefault()
             }); 
         },
         shutdown() { 
@@ -859,7 +883,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = e.target.closest('.kanban-card');
             if (!card || e.target.closest('.delete-card-btn')) return;
 
-            e.preventDefault();
+            e.preventDefault(); // Prevent default touch behavior (like scrolling)
             App.isDraggingKanbanCard = true;
             
             this.draggedItem.element = card;
@@ -884,7 +908,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         handleTouchMove(e) {
             if (!this.draggedItem.ghost) return;
-            e.preventDefault();
+            e.preventDefault(); // Prevent default touch behavior (like scrolling)
 
             const touch = e.touches[0];
             this.draggedItem.ghost.style.left = `${touch.clientX - this.draggedItem.offsetX}px`;
@@ -896,7 +920,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             document.querySelectorAll('.kanban-column').forEach(c => c.classList.remove('drag-over'));
             
-            const column = elementUnder.closest('.kanban-column');
+            const column = elementUnder ? elementUnder.closest('.kanban-column') : null;
             if (column) {
                 column.classList.add('drag-over');
             }
