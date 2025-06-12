@@ -250,7 +250,8 @@
             .desktop-main-content { 
                 padding-top: 3.5rem; 
                 padding-left: 0.5rem; 
-                padding-bottom: calc(8rem + env(safe-area-inset-bottom));
+                /* Adjusted padding-bottom for mobile */
+                padding-bottom: calc(8rem + env(safe-area-inset-bottom) + 1.5rem); /* Added extra 1.5rem for dock clearance */
             }
             #welcome-greeting { font-size: 2.2rem !important; margin-bottom: 0.5rem; }
             #welcome-message { font-size: 1.2rem !important; margin-bottom: 1.5rem; }
@@ -1193,26 +1194,26 @@
             </div>
             
             <div id="desktop-icons">
-                 <div class="desktop-icon" data-window="tasks-window">
-                      <div class="icon"><i class="fa-solid fa-list-check"></i></div>
-                      <div class="label">Tasks</div>
-                 </div>
-                 <div class="desktop-icon" data-window="pomodoro-window">
-                      <div class="icon"><i class="fa-solid fa-clock"></i></div>
-                      <div class="label">Pomodoro</div>
-                 </div>
-                 <div class="desktop-icon" data-window="kanban-window">
-                      <div class="icon"><i class="fa-solid fa-table-columns"></i></div>
-                      <div class="label">Kanban Board</div>
-                 </div>
-                 <div class="desktop-icon" data-window="notepad-window">
-                      <div class="icon"><i class="fa-solid fa-note-sticky"></i></div>
-                      <div class="label">Notepad</div>
-                 </div>
-                 <div class="desktop-icon" data-window="settings-window">
-                      <div class="icon"><i class="fa-solid fa-gear"></i></div>
-                      <div class="label">Settings</div>
-                 </div>
+                   <div class="desktop-icon" data-window="tasks-window">
+                        <div class="icon"><i class="fa-solid fa-list-check"></i></div>
+                        <div class="label">Tasks</div>
+                   </div>
+                   <div class="desktop-icon" data-window="pomodoro-window">
+                        <div class="icon"><i class="fa-solid fa-clock"></i></div>
+                        <div class="label">Pomodoro</div>
+                   </div>
+                   <div class="desktop-icon" data-window="kanban-window">
+                        <div class="icon"><i class="fa-solid fa-table-columns"></i></div>
+                        <div class="label">Kanban Board</div>
+                   </div>
+                   <div class="desktop-icon" data-window="notepad-window">
+                        <div class="icon"><i class="fa-solid fa-note-sticky"></i></div>
+                        <div class="label">Notepad</div>
+                   </div>
+                   <div class="desktop-icon" data-window="settings-window">
+                        <div class="icon"><i class="fa-solid fa-gear"></i></div>
+                        <div class="label">Settings</div>
+                   </div>
             </div>
         </div>
         
@@ -1295,56 +1296,56 @@
                 <span class="mobile-close-btn">×</span>
             </div>
             <div class="window-content" style="display: flex; flex-direction: column;">
-                 <h3><i class="fa-solid fa-gear"></i> Settings</h3>
-                 <div class="settings-section">
-                      <h4>Appearance</h4>
-                      <div style="display:flex; justify-content:space-between; align-items:center;">
-                           <label>Animated Background</label>
-                           <label class="switch"><input type="checkbox" id="animation-toggle"><span class="slider"></span></label>
-                      </div>
-                      
-                      <h4 style="margin-top: 15px;">Accent Color</h4>
-                      <div class="color-picker-container">
-                          <div class="color-option selected" style="background-color: #0a84ff;" data-color="#0a84ff"></div>
-                          <div class="color-option" style="background-color: #ff2d55;" data-color="#ff2d55"></div>
-                          <div class="color-option" style="background-color: #34c759;" data-color="#34c759"></div>
-                          <div class="color-option" style="background-color: #ff9500;" data-color="#ff9500"></div>
-                          <div class="color-option" style="background-color: #af52de;" data-color="#af52de"></div>
-                          <div class="color-option" style="background-color: #5856d6;" data-color="#5856d6"></div>
-                      </div>
-                      
-                      <h4 style="margin-top: 15px;">Particle Density</h4>
-                      <div class="particle-density">
-                          <input type="range" id="particle-density" min="1" max="10" value="5">
-                          <span id="density-value">5</span>
-                      </div>
-                 </div>
-                 <div class="settings-section">
-                      <h4>Personalization</h4>
-                      <label>Your Name</label>
-                      <input type="text" id="username-input" placeholder="Enter your name">
-                 </div>
-                 <div class="settings-section">
-                      <h4>Pomodoro</h4>
-                      <label>Work Duration (minutes)</label><input type="number" id="pomo-work-input" min="1"><br><br>
-                      <label>Break Duration (minutes)</label><input type="number" id="pomo-break-input" min="1">
-                 </div>
-                 <div style="margin-top: auto; padding-top: 1rem;">
-                      <div id="interactive-quote-container">
-                          <p id="feature-quote-text">More features coming soon!</p>
-                      </div>
-                     <button id="reset-settings">Reset All Data</button>
-                 </div>
+                    <h3><i class="fa-solid fa-gear"></i> Settings</h3>
+                    <div class="settings-section">
+                        <h4>Appearance</h4>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                               <label>Animated Background</label>
+                               <label class="switch"><input type="checkbox" id="animation-toggle"><span class="slider"></span></label>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px;">Accent Color</h4>
+                        <div class="color-picker-container">
+                              <div class="color-option selected" style="background-color: #0a84ff;" data-color="#0a84ff"></div>
+                              <div class="color-option" style="background-color: #ff2d55;" data-color="#ff2d55"></div>
+                              <div class="color-option" style="background-color: #34c759;" data-color="#34c759"></div>
+                              <div class="color-option" style="background-color: #ff9500;" data-color="#ff9500"></div>
+                              <div class="color-option" style="background-color: #af52de;" data-color="#af52de"></div>
+                              <div class="color-option" style="background-color: #5856d6;" data-color="#5856d6"></div>
+                        </div>
+                        
+                        <h4 style="margin-top: 15px;">Particle Density</h4>
+                        <div class="particle-density">
+                            <input type="range" id="particle-density" min="1" max="10" value="5">
+                            <span id="density-value">5</span>
+                        </div>
+                    </div>
+                    <div class="settings-section">
+                        <h4>Personalization</h4>
+                        <label>Your Name</label>
+                        <input type="text" id="username-input" placeholder="Enter your name">
+                    </div>
+                    <div class="settings-section">
+                        <h4>Pomodoro</h4>
+                        <label>Work Duration (minutes)</label><input type="number" id="pomo-work-input" min="1"><br><br>
+                        <label>Break Duration (minutes)</label><input type="number" id="pomo-break-input" min="1">
+                    </div>
+                    <div style="margin-top: auto; padding-top: 1rem;">
+                            <div id="interactive-quote-container">
+                                <p id="feature-quote-text">More features coming soon!</p>
+                            </div>
+                           <button id="reset-settings">Reset All Data</button>
+                    </div>
             </div>
         </div>
         
         <div class="dock">
-             <div class="dock-item" data-window="tasks-window" title="Tasks"><i class="fa-solid fa-list-check"></i><div class="active-dot"></div></div>
-             <div class="dock-item" data-window="pomodoro-window" title="Pomodoro"><i class="fa-solid fa-clock"></i><div class="active-dot"></div></div>
-             <div class="dock-item" data-window="kanban-window" title="Kanban Board"><i class="fa-solid fa-table-columns"></i><div class="active-dot"></div></div>
-             <div class="dock-item" data-window="notepad-window" title="Notepad"><i class="fa-solid fa-note-sticky"></i><div class="active-dot"></div></div>
-             <div class="dock-item" data-window="settings-window" title="Settings" style="margin-left: 1.25rem;"><i class="fa-solid fa-gear"></i><div class="active-dot"></div></div>
-             <div id="power-off-btn" class="dock-item" title="Power Off" style="margin-left: 1.25rem;"><i class="fa-solid fa-power-off"></i></div>
+               <div class="dock-item" data-window="tasks-window" title="Tasks"><i class="fa-solid fa-list-check"></i><div class="active-dot"></div></div>
+               <div class="dock-item" data-window="pomodoro-window" title="Pomodoro"><i class="fa-solid fa-clock"></i><div class="active-dot"></div></div>
+               <div class="dock-item" data-window="kanban-window" title="Kanban Board"><i class="fa-solid fa-table-columns"></i><div class="active-dot"></div></div>
+               <div class="dock-item" data-window="notepad-window" title="Notepad"><i class="fa-solid fa-note-sticky"></i><div class="active-dot"></div></div>
+               <div class="dock-item" data-window="settings-window" title="Settings" style="margin-left: 1.25rem;"><i class="fa-solid fa-gear"></i><div class="active-dot"></div></div>
+               <div id="power-off-btn" class="dock-item" title="Power Off" style="margin-left: 1.25rem;"><i class="fa-solid fa-power-off"></i></div>
         </div>
     </div>
     
