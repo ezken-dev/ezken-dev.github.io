@@ -250,12 +250,20 @@
             .desktop-main-content { 
                 padding-top: 3.5rem; 
                 padding-left: 0.5rem; 
-                /* Adjusted padding-bottom for mobile */
-                padding-bottom: calc(8rem + env(safe-area-inset-bottom) + 1.5rem); /* Added extra 1.5rem for dock clearance */
+                /* Increased padding-bottom for mobile, particularly for iOS browser UI */
+                padding-bottom: calc(10rem + env(safe-area-inset-bottom)); /* Adjusted for more clearance */
             }
             #welcome-greeting { font-size: 2.2rem !important; margin-bottom: 0.5rem; }
             #welcome-message { font-size: 1.2rem !important; margin-bottom: 1.5rem; }
-            #desktop-icons { grid-template-columns: repeat(2, 1fr); gap: 1rem; padding: 0 0.5rem; max-height: 60vh; overflow-y: auto; }
+            #desktop-icons { 
+                grid-template-columns: repeat(2, 1fr); 
+                gap: 1rem; 
+                padding: 0 0.5rem; 
+                max-height: 60vh; /* Adjust if icons are still getting cut off */
+                overflow-y: auto; 
+                /* Allow icons to scroll if they exceed the max-height */
+                padding-bottom: 2rem; /* Additional padding for scrollable area */
+            }
             .desktop-icon { padding: 0.8rem; }
             .desktop-icon .icon { font-size: 2.5rem !important; width: 60px; height: 60px; }
             .desktop-icon .label { font-size: 0.9rem !important; }
@@ -267,7 +275,11 @@
                 max-width: 95%;
                 overflow-x: auto;
                 scrollbar-width: none;
+                /* Add pointer-events: none to prevent capturing touches that should go to the browser UI */
+                pointer-events: auto; /* Re-enable pointer events for the dock itself */
             }
+            /* Hide the default browser bottom UI if needed, but this is usually not recommended or possible */
+            /* For the dock itself, ensure it's on top of any other content */
             .dock::-webkit-scrollbar { display: none; }
             .dock-item {
                 width: 3.2rem;
@@ -275,7 +287,16 @@
                 font-size: 1.6rem;
             }
             .dock-item:hover { transform: scale(1.2) translateY(-5px) !important; }
-            .window { min-width: 90% !important; min-height: 70% !important; max-width: 95% !important; max-height: 85% !important; left: 50% !important; top: 50% !important; transform: translate(-50%, -50%) scale(0.95) !important; resize: none; }
+            .window { 
+                min-width: 90% !important; 
+                min-height: 70% !important; 
+                max-width: 95% !important; 
+                max-height: 85% !important; 
+                left: 50% !important; 
+                top: 50% !important; 
+                transform: translate(-50%, -50%) scale(0.95) !important; 
+                resize: none; 
+            }
             .window.visible { transform: translate(-50%, -50%) scale(1) !important; }
             .title-bar { padding: 0.8rem; }
             .control-dot { width: 1.2rem; height: 1.2rem; }
@@ -298,6 +319,56 @@
             #add-task-form > * { width: 100%; }
             #kanban-container { padding: 0 !important; }
             .kanban-board { flex-direction: column; gap: 1rem; align-items: stretch; padding: 1rem; }
+
+            /* iOS specific adjustments */
+            body.is-ios .desktop-main-content {
+                /* Even more padding for iOS if necessary, accounting for larger browser chrome */
+                padding-bottom: calc(14rem + env(safe-area-inset-bottom)); /* Increased significantly */
+            }
+
+            body.is-ios .dock {
+                /* Ensure dock is positioned relative to the bottom safe area */
+                bottom: env(safe-area-inset-bottom, 1rem); /* Fallback to 1rem if not supported */
+                /* For iOS, force the dock to be visible by increasing its z-index if needed */
+                z-index: 999; 
+            }
+
+            body.is-ios .window-content {
+                /* Ensure content within windows has enough space on iOS */
+                padding-bottom: 1.5rem; /* Give some breathing room at the bottom of window content */
+            }
+
+            /* Fix for "Reset All Data" button in settings window on iOS */
+            body.is-ios #settings-window .window-content {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between; /* Distribute space */
+                height: 100%; /* Ensure content takes full height to allow auto margin to work */
+                padding-bottom: 1rem; /* Added padding to prevent cutoff at the very bottom */
+            }
+
+            body.is-ios #settings-window .settings-section:last-of-type {
+                margin-bottom: 0; /* Remove extra margin if it causes overflow */
+                flex-grow: 1; /* Allow the last section to grow if needed */
+                display: flex;
+                flex-direction: column;
+            }
+
+            body.is-ios #settings-window .settings-section:last-of-type > div:last-child {
+                margin-top: auto; /* Push the reset button to the bottom */
+                padding-top: 1rem; /* Ensure there's space above it */
+            }
+
+            /* Adjust desktop icons for iOS to center them better if they appear off */
+            body.is-ios #desktop-icons {
+                align-items: flex-start; /* Align to start of grid cells */
+                justify-content: center; /* Center the grid container itself */
+                height: auto; /* Let content define height */
+            }
+
+            body.is-ios .desktop-icon {
+                margin-bottom: 0.5rem; /* Add some space between icons */
+            }
         }
         
         /* Fullscreen overlays */
