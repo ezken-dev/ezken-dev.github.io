@@ -1,0 +1,244 @@
+/*
+====================================
+    FOCUS PET STYLES (SVG-BASED)
+====================================
+*/
+
+#pet-sprite {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-grow: 1; /* Allow sprite to take up available space */
+}
+
+#pet-sprite svg {
+    width: 90%;
+    height: 90%;
+    overflow: visible;
+}
+
+/* Base Pet Styles */
+.pet-body {
+    stroke-width: 8;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    transition: fill 0.4s ease;
+}
+
+.pet-eye {
+    fill: #1c1c1e;
+}
+
+.pet-feature {
+    stroke-width: 6;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+    fill: none;
+    transition: stroke 0.4s ease;
+}
+
+/* --- COLOR THEMING --- */
+
+/* Default Color (White) */
+#pet-sprite[data-color="default"] .pet-body {
+    fill: #f5f5f7;
+    stroke: #8e8e93;
+}
+#pet-sprite[data-color="default"] .pet-feature {
+    stroke: #8e8e93;
+}
+
+/* Blue Color */
+#pet-sprite[data-color="blue"] .pet-body {
+    fill: #5ac8fa; /* Light Blue */
+    stroke: #007aff; /* Darker Blue */
+}
+#pet-sprite[data-color="blue"] .pet-feature {
+    stroke: #007aff;
+}
+
+/* Green Color */
+#pet-sprite[data-color="green"] .pet-body {
+    fill: #90ee90; /* Light Green */
+    stroke: #34c759; /* Darker Green */
+}
+#pet-sprite[data-color="green"] .pet-feature {
+    stroke: #34c759;
+}
+
+/* Pink Color */
+#pet-sprite[data-color="pink"] .pet-body {
+    fill: #ffb6c1; /* Light Pink */
+    stroke: #ff2d55; /* Darker Pink */
+}
+#pet-sprite[data-color="pink"] .pet-feature {
+    stroke: #ff2d55;
+}
+
+/* Ghost Specifics */
+#pet-sprite .ghost-body {
+    fill: rgba(240, 240, 255, 0.9);
+    stroke: rgba(180, 180, 200, 0.7);
+}
+
+
+/*
+====================================
+    TUTORIAL STYLES
+====================================
+*/
+
+#focus-pet-tutorial-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px);
+    z-index: 999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+#focus-pet-tutorial-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.tutorial-modal {
+    background: var(--dock-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 380px;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    text-align: center;
+}
+
+.tutorial-animation-area {
+    background: rgba(0,0,0,0.2);
+    border-radius: 8px;
+    height: 150px;
+    margin: 10px auto;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.tutorial-description {
+    color: var(--text-color);
+    margin: 20px 0;
+    min-height: 40px;
+    font-size: 1.1rem;
+}
+
+.tutorial-navigation {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tutorial-dots {
+    display: flex;
+    gap: 8px;
+}
+
+.tutorial-dot {
+    width: 10px;
+    height: 10px;
+    background: var(--button-bg);
+    border-radius: 50%;
+    transition: background 0.3s ease;
+}
+
+.tutorial-dot.active {
+    background: var(--accent-color);
+}
+
+/* Tutorial Animation Elements */
+.tut-element {
+    position: absolute;
+    opacity: 0;
+    transform: translateY(20px);
+}
+
+.tut-task {
+    background: var(--window-bg);
+    padding: 10px 15px;
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.tut-task i {
+    color: var(--success-color);
+}
+
+.tut-xp-text {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--success-color);
+    text-shadow: 0 0 10px var(--success-color);
+}
+
+.tut-xp-bar-container {
+    width: 70%;
+    height: 15px;
+    background: var(--button-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+}
+
+.tut-xp-bar-fill {
+    width: 0;
+    height: 100%;
+    background: linear-gradient(90deg, var(--success-color), #8effa6);
+    border-radius: 8px;
+    transition: width 0.5s ease-in-out;
+}
+
+.tut-pet-container {
+    transform: scale(0.8);
+}
+.tut-pet-container .pet-body { stroke-width: 10; }
+.tut-pet-container .pet-feature { stroke-width: 8; }
+
+
+/* Tutorial Animations */
+@keyframes fadeInUp {
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+@keyframes fadeOutDown {
+    to {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+}
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+@keyframes fly-to-bar {
+    0% {
+        opacity: 1;
+        transform: translate(0, 0) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(0, 50px) scale(0.2);
+    }
+}
