@@ -8,6 +8,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    
+    <link rel="stylesheet" href="focus-pet.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+
     <style>
         :root {
             --font-family: 'Inter', -apple-system, sans-serif;
@@ -44,6 +50,7 @@
             overflow: hidden; 
             color: var(--text-color); 
             touch-action: manipulation; 
+            transition: background-color 0.5s ease;
         }
         
         /* Enhanced particle background */
@@ -57,10 +64,79 @@
             opacity: 0.6;
             transition: opacity var(--transition-duration) var(--transition-easing);
         }
+
+        /* START: Dark Space Theme Styles (FIXED) */
+        #space-theme-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: -2; /* Place behind particle canvas */
+            background: transparent;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.8s ease;
+            overflow: hidden;
+        }
+
+        body.space-theme {
+            background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+        }
+
+        body.space-theme #space-theme-container {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Keyframes for twinkling animation */
+        @keyframes twinkle {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-2000px); }
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 1px;
+            height: 1px;
+            background: transparent;
+            animation: twinkle 150s linear infinite;
+        }
+
+        .stars.stars2 {
+            width: 2px;
+            height: 2px;
+            animation-duration: 100s;
+        }
+
+        .stars.stars3 {
+            width: 3px;
+            height: 3px;
+            animation-duration: 75s;
+        }
+
+        /* Generated box-shadows for stars. This technique uses a tiny, repeating pixel to create the starfield. */
+        #stars1 { box-shadow: 629px 1759px #FFF, 839px 1125px #FFF, 106px 1563px #FFF, 880px 1863px #FFF, 1789px 131px #FFF, 153px 311px #FFF, 1034px 1476px #FFF, 1823px 1403px #FFF, 1269px 926px #FFF, 1249px 1230px #FFF, 49px 1530px #FFF, 1494px 1402px #FFF, 1108px 148px #FFF, 742px 788px #FFF, 175px 446px #FFF, 141px 1459px #FFF, 629px 1475px #FFF, 1639px 125px #FFF, 106px 563px #FFF, 880px 863px #FFF; }
+        #stars2 { box-shadow: 1889px 1831px #FFF, 153px 1311px #FFF, 14px 176px #FFF, 123px 403px #FFF, 169px 926px #FFF, 1249px 230px #FFF, 49px 530px #FFF, 1494px 402px #FFF, 108px 148px #FFF, 742px 1788px #FFF, 175px 1446px #FFF, 141px 459px #FFF, 629px 475px #FFF, 1639px 1125px #FFF, 1106px 1563px #FFF, 880px 163px #FFF; }
+        #stars3 { box-shadow: 829px 759px #FFF, 1839px 125px #FFF, 1106px 563px #FFF, 1880px 863px #FFF, 1789px 1131px #FFF, 153px 311px #FFF, 1034px 476px #FFF, 1823px 403px #FFF, 269px 1926px #FFF, 1249px 230px #FFF, 499px 1530px #FFF, 1494px 1402px #FFF; }
+        
+        #comet-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+        }
+        /* END: Dark Space Theme Styles */
         
         /* Smooth transitions for all interactive elements */
         .desktop-icon, .dock-item, button, .window, .kanban-card, 
-        #note-list li, #task-list li, #interactive-quote-container {
+        #note-list li, #task-list li, #interactive-quote-container, #daily-focus-widget, .habit-item {
             transition: all var(--transition-duration) var(--transition-easing);
             will-change: transform, opacity;
         }
@@ -103,11 +179,10 @@
             transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        /* --- FIX: Make Font Awesome icons visible --- */
+        /* FIX: Make Font Awesome icons visible */
         .desktop-icon .icon i {
             color: var(--accent-color); /* Set a distinct color for the icons */
         }
-        /* --- END FIX --- */
         
         .desktop-icon:hover .icon {
             background: var(--accent-color);
@@ -118,6 +193,7 @@
         .desktop-icon:hover .icon i {
             color: #fff;
         }
+        /* END FIX */
         
         .desktop-icon .label {
             font-size: 0.875rem;
@@ -194,7 +270,7 @@
             box-shadow: 0 1.25rem 3.125rem var(--shadow-color);
             min-width: 380px;
             resize: both;
-            overflow: hidden;
+            overflow: hidden; /* Changed from auto to hidden to remove window scrollbars */
             visibility: hidden;
             opacity: 0;
             transform: scale(0.98) translateY(10px);
@@ -254,7 +330,31 @@
             background: #0077e6;
             box-shadow: 0 6px 15px rgba(10, 132, 255, 0.4);
         }
-        
+
+        /* ===== NEW: Custom Scrollbar Styles ===== */
+        /* This targets scrollbars in Webkit browsers (Chrome, Safari, Edge, etc.) */
+        ::-webkit-scrollbar {
+            width: 10px; /* Width of the entire scrollbar */
+            height: 10px; /* Height of the horizontal scrollbar */
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(28, 28, 30, 0.5); /* A color that matches the window background */
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--accent-color); /* Color of the scroll thumb */
+            border-radius: 10px; /* Roundness of the scroll thumb */
+            border: 3px solid transparent; /* Creates padding around the thumb */
+            background-clip: content-box;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #0077e6; /* A slightly brighter accent color on hover */
+        }
+        /* ===== END Custom Scrollbar Styles ===== */
+
         /* Mobile styles */
         @media (max-width: 768px) {
             html { font-size: 14px; }
@@ -332,14 +432,11 @@
                 padding-bottom: calc(4rem + env(safe-area-inset-bottom)); 
             }
 
-            /* No .dock adjustments for iOS needed as it's now hidden */
-
             body.is-ios .window-content {
                 /* Ensure content within windows has enough space on iOS */
                 padding-bottom: 1.5rem; /* Give some breathing room at the bottom of window content */
             }
 
-            /* Fix for "Reset All Data" button in settings window on iOS */
             body.is-ios #settings-window .window-content {
                 display: flex;
                 flex-direction: column;
@@ -349,26 +446,25 @@
             }
 
             body.is-ios #settings-window .settings-section:last-of-type {
-                margin-bottom: 0; /* Remove extra margin if it causes overflow */
-                flex-grow: 1; /* Allow the last section to grow if needed */
+                margin-bottom: 0; 
+                flex-grow: 1;
                 display: flex;
                 flex-direction: column;
             }
 
             body.is-ios #settings-window .settings-section:last-of-type > div:last-child {
-                margin-top: auto; /* Push the reset button to the bottom */
-                padding-top: 1rem; /* Ensure there's space above it */
+                margin-top: auto; 
+                padding-top: 1rem;
             }
 
-            /* Adjust desktop icons for iOS to center them better if they appear off */
             body.is-ios #desktop-icons {
-                align-items: flex-start; /* Align to start of grid cells */
-                justify-content: center; /* Center the grid container itself */
-                height: auto; /* Let content define height */
+                align-items: flex-start;
+                justify-content: center;
+                height: auto;
             }
 
             body.is-ios .desktop-icon {
-                margin-bottom: 0.5rem; /* Add some space between icons */
+                margin-bottom: 0.5rem;
             }
         }
         
@@ -411,36 +507,15 @@
         
         /* Animations */
         @keyframes text-zoom-in { 
-            0% { 
-                opacity: 0; 
-                transform: scale(1); 
-            } 
-            100% { 
-                opacity: 1; 
-                transform: scale(1.15); 
-            } 
+            0% { opacity: 0; transform: scale(1); } 
+            100% { opacity: 1; transform: scale(1.15); } 
         }
         
-        @keyframes fade-in { 
-            0% { opacity: 0; } 
-            100% { opacity: 1; } 
-        }
-        
-        @keyframes fill-up { 
-            0% { width: 0; } 
-            100% { width: 100%; } 
-        }
-        
-        @keyframes fade-out { 
-            0% { opacity: 1; transform: scale(1); } 
-            100% { opacity: 0; transform: scale(0.9); } 
-        }
-        
-        @keyframes bounce { 
-            0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 
-            40% { transform: translateY(-20px); } 
-            60% { transform: translateY(-10px); } 
-        }
+        @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
+        @keyframes fill-up { 0% { width: 0; } 100% { width: 100%; } }
+        @keyframes fade-out { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9); } }
+        @keyframes bounce { 0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 40% { transform: translateY(-20px); } 60% { transform: translateY(-10px); } }
+        @keyframes gradient-animation { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
         #intro-logo { 
             font-size: 3.5rem; 
@@ -470,21 +545,10 @@
             border-radius: 2px; 
         }
         
-        .intro-content:not(.exiting) #intro-logo { 
-            animation: text-zoom-in 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards;
-        }
-        
-        .intro-content:not(.exiting) #loading-bar-container { 
-            animation: fade-in 0.5s ease-out 1.5s forwards; 
-        }
-        
-        .intro-content:not(.exiting) #loading-bar { 
-            animation: fill-up 1.5s ease-in-out 1.8s forwards; 
-        }
-        
-        .intro-content.exiting { 
-            animation: fade-out 0.8s ease-in forwards; 
-        }
+        .intro-content:not(.exiting) #intro-logo { animation: text-zoom-in 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.5s forwards; }
+        .intro-content:not(.exiting) #loading-bar-container { animation: fade-in 0.5s ease-out 1.5s forwards; }
+        .intro-content:not(.exiting) #loading-bar { animation: fill-up 1.5s ease-in-out 1.8s forwards; }
+        .intro-content.exiting { animation: fade-out 0.8s ease-in forwards; }
         
         #name-prompt-overlay { 
             z-index: 201; 
@@ -504,10 +568,7 @@
             width: 320px;
         }
         
-        #name-prompt-box h2 { 
-            margin-top: 0; 
-            margin-bottom: 1rem;
-        }
+        #name-prompt-box h2 { margin-top: 0; margin-bottom: 1rem; }
         
         #name-input { 
             margin: 1rem 0; 
@@ -536,690 +597,241 @@
             width: 320px; 
         }
         
-        #custom-notification-message { 
-            font-size: 1.1rem; 
-            margin: 0 0 1.5rem 0; 
-        }
+        #custom-notification-message { font-size: 1.1rem; margin: 0 0 1.5rem 0; }
+        #custom-notification-ok { width: 100px; }
         
-        #custom-notification-ok { 
-            width: 100px; 
-        }
-        
-        .desktop { 
-            display: none; 
-            height: 100%; 
-            position: relative;
-        }
+        .desktop { display: none; height: 100%; position: relative; }
         
         .top-bar { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            padding: 0.5rem 1.25rem; 
-            z-index: 99; 
-            background: var(--dock-bg); 
-            backdrop-filter: blur(10px); 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center;
+            position: fixed; top: 0; left: 0; width: 100%; 
+            padding: 0.5rem 1.25rem; z-index: 99; 
+            background: var(--dock-bg); backdrop-filter: blur(10px); 
+            display: flex; justify-content: space-between; align-items: center;
             border-bottom: 1px solid var(--border-color);
         }
         
-        .top-bar-left { 
-            display: flex; 
-            align-items: center; 
-            gap: 1rem; 
-            font-weight: 600; 
-        }
-        
-        #live-clock { 
-            font-weight: 500; 
-        }
+        .top-bar-left { display: flex; align-items: center; gap: 1rem; font-weight: 600; }
+        #live-clock { font-weight: 500; }
         
         .desktop-main-content { 
-            padding-top: 4rem; 
-            height: 100%; 
-            padding-left: 1.25rem; 
-            position: relative; 
-            z-index: 2; 
+            padding-top: 4rem; height: 100%; padding-left: 1.25rem; 
+            position: relative; z-index: 2; padding-right: 1.25rem; 
         }
         
-        #welcome-widget { 
-            margin-bottom: 1.25rem; 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3); 
-            color: #fff; 
-        }
-        
+        #welcome-widget { margin-bottom: 1.25rem; text-shadow: 0 1px 3px rgba(0,0,0,0.3); color: #fff; }
         #welcome-greeting { 
-            font-size: 3rem; 
-            font-weight: 600; 
+            font-size: 3rem; font-weight: 600; 
             background: linear-gradient(90deg, #ffffff, var(--accent-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.5rem;
         }
+        #welcome-message { font-size: 1.5rem; font-weight: 400; color: var(--text-color-secondary); }
         
-        #welcome-message { 
-            font-size: 1.5rem; 
-            font-weight: 400; 
-            color: var(--text-color-secondary);
-        }
-        
-        #desktop-icons { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, 100px); 
-            gap: 1.25rem; 
-            max-height: 80%; 
-        }
+        #desktop-icons { display: grid; grid-template-columns: repeat(auto-fill, 100px); gap: 1.25rem; max-height: 80%; }
         
         .title-bar { 
-            padding: 0.625rem; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            cursor: move; 
-            position: relative; 
+            padding: 0.625rem; display: flex; align-items: center; 
+            gap: 0.5rem; cursor: move; position: relative; 
             background: rgba(0,0,0,0.2);
             border-bottom: 1px solid var(--border-color);
         }
         
-        .control-dot { 
-            width: 0.75rem; 
-            height: 0.75rem; 
-            border-radius: 50%; 
-            cursor: pointer; 
-        }
+        .control-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; cursor: pointer; }
+        .dot-red { background: #ff5f56; }
         
-        .dot-red { 
-            background: #ff5f56; 
-        }
-        
+        /* This is the key change: it enables scrolling within the content area */
         .window-content { 
-            padding: 0 1rem 1rem 1rem; 
-            height: calc(100% - 2.75rem); 
-            overflow: auto; 
+            padding: 1rem; /* Adjust padding as needed */
+            height: calc(100% - 38px); /* Height of title bar */
+            overflow-y: auto; /* Changed to auto to only show scrollbar when needed */
         }
         
-        .window h3 { 
-            margin: 0.625rem 0 1rem 0; 
-            font-weight: 600; 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-        }
+        .window h3 { margin: 0 0 1rem 0; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
         
         input, select { 
-            width: 100%; 
-            padding: 0.625rem; 
-            border: 1px solid var(--border-color); 
-            border-radius: 0.5rem; 
-            background: var(--input-bg); 
-            color: var(--text-color); 
-            font-size: 1rem; 
-            backdrop-filter: blur(5px);
+            width: 100%; padding: 0.625rem; border: 1px solid var(--border-color); 
+            border-radius: 0.5rem; background: var(--input-bg); color: var(--text-color); 
+            font-size: 1rem; backdrop-filter: blur(5px);
         }
         
-        .switch { 
-            position: relative; 
-            display: inline-block; 
-            width: 50px; 
-            height: 28px; 
-        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 28px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--button-bg); transition: all 0.4s; border-radius: 28px; }
+        .slider:before { position: absolute; content: ""; height: 20px; width: 20px; left: 4px; bottom: 4px; background-color: white; transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); border-radius: 50%; }
+        input:checked + .slider { background-color: var(--accent-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
+        input:disabled + .slider { cursor: not-allowed; background-color: #333; }
         
-        .switch input { 
-            opacity: 0; 
-            width: 0; 
-            height: 0; 
-        }
+        .empty-state { text-align: center; color: var(--text-color-secondary); padding: 3rem 1rem; }
         
-        .slider { 
-            position: absolute; 
-            cursor: pointer; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background-color: var(--button-bg); 
-            transition: all 0.4s; 
-            border-radius: 28px; 
-        }
-        
-        .slider:before { 
-            position: absolute; 
-            content: ""; 
-            height: 20px; 
-            width: 20px; 
-            left: 4px; 
-            bottom: 4px; 
-            background-color: white; 
-            transition: all 0.4s cubic-bezier(0.68, -0.55, 0.27, 1.55); 
-            border-radius: 50%; 
-        }
-        
-        input:checked + .slider { 
-            background-color: var(--accent-color); 
-        }
-        
-        input:checked + .slider:before { 
-            transform: translateX(22px); 
-        }
-        
-        .empty-state { 
-            text-align: center; 
-            color: var(--text-color-secondary); 
-            padding: 3rem 1rem;
-        }
-        
-        #task-list-wrapper { 
-            max-height: 380px; 
-            overflow-y: auto; 
-            margin-bottom: 1rem;
-        }
-        
-        #task-list { 
-            list-style-type: none; 
-            padding: 0; 
-            margin: 0; 
-        }
+        /* Specific content containers are now responsible for their own height and scrolling */
+        #task-list-wrapper { max-height: calc(100% - 130px); overflow-y: auto; margin-bottom: 1rem; }
+        #task-list { list-style-type: none; padding: 0; margin: 0; }
         
         #task-list li { 
-            display: flex; 
-            flex-direction: column; 
-            padding: 0.75rem 0.5rem; 
-            border-bottom: 1px solid var(--border-color); 
-            transition: all 0.3s ease; 
-            gap: 0.5rem; 
-            border-radius: 0.5rem;
-            margin-bottom: 0.5rem;
+            display: flex; flex-direction: column; padding: 0.75rem 0.5rem; 
+            border-bottom: 1px solid var(--border-color); transition: all 0.3s ease; 
+            gap: 0.5rem; border-radius: 0.5rem; margin-bottom: 0.5rem;
             background: rgba(255, 255, 255, 0.05);
         }
+        #task-list li:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
         
-        #task-list li:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
+        .task-main { display: flex; align-items: center; gap: 0.75rem; }
+        .task-details { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: var(--text-color-secondary); }
+        .task-text { flex-grow: 1; }
+        .task-actions { display: flex; gap: 0.5rem; }
+        .task-actions button { background: transparent; padding: 0.2rem 0.4rem; font-size: 0.9rem; }
+        .task-actions button:hover { background: var(--button-bg-hover); }
+        #task-list li.completed .task-text { text-decoration: line-through; color: var(--text-color-secondary); }
         
-        .task-main { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.75rem; 
-        }
+        .priority-tag { font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 0.5rem; font-weight: 600; text-transform: capitalize; }
+        .priority-high { background-color: var(--danger-color); color: #fff; }
+        .priority-medium { background-color: var(--warning-color); color: #000; }
+        .priority-low { background-color: var(--success-color); color: #fff; }
         
-        .task-details { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            font-size: 0.8rem; 
-            color: var(--text-color-secondary); 
-        }
+        .due-date { font-size: 0.8rem; color: var(--text-color-secondary); }
         
-        .task-text { 
-            flex-grow: 1; 
-        }
+        .subtask-list { list-style-type: none; padding-left: 1.5rem; margin-top: 0.5rem; display: flex; flex-direction: column; gap: 0.4rem; }
+        .subtask-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; padding: 0.3rem; border-radius: 0.3rem; background: rgba(255, 255, 255, 0.03); }
+        .subtask-item.completed span { text-decoration: line-through; color: var(--text-color-secondary); }
         
-        .task-actions { 
-            display: flex; 
-            gap: 0.5rem; 
-        }
+        .task-checkbox { position: relative; display: inline-block; cursor: pointer; }
+        .task-checkbox input { opacity: 0; width: 0; height: 0; }
+        .custom-checkbox { position: relative; top: 0; left: 0; height: 20px; width: 20px; background-color: transparent; border: 2px solid var(--text-color-secondary); border-radius: 5px; transition: all 0.2s; }
+        .task-checkbox input:checked ~ .custom-checkbox { background-color: var(--accent-color); border-color: var(--accent-color); }
+        .custom-checkbox:after { content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 5px; height: 10px; border: solid white; border-width: 0 3px 3px 0; transform: rotate(45deg); }
+        .task-checkbox input:checked ~ .custom-checkbox:after { display: block; }
         
-        .task-actions button { 
-            background: transparent; 
-            padding: 0.2rem 0.4rem; 
-            font-size: 0.9rem; 
-        }
+        #add-task-form { display: flex; gap: 0.75rem; align-items: center; padding-top: 10px; border-top: 1px solid var(--border-color); }
+        #add-task-form input[type="text"] { flex-grow: 1; }
         
-        .task-actions button:hover { 
-            background: var(--button-bg-hover); 
-        }
+        .progress-bar-container { width: 100%; background-color: var(--button-bg); border-radius: 5px; height: 8px; overflow: hidden; }
+        .progress-bar-fill { height: 100%; width: 0; background: linear-gradient(90deg, var(--accent-color), #00d4ff); transition: width 0.4s ease-in-out; border-radius: 5px; }
         
-        #task-list li.completed .task-text { 
-            text-decoration: line-through; 
-            color: var(--text-color-secondary); 
-        }
+        #notepad-container, #kanban-container { display: flex; height: 100%; flex-direction: column; }
         
-        .priority-tag { 
-            font-size: 0.7rem; 
-            padding: 0.1rem 0.4rem; 
-            border-radius: 0.5rem; 
-            font-weight: 600; 
-            text-transform: capitalize; 
-        }
-        
-        .priority-high { 
-            background-color: var(--danger-color); 
-            color: #fff; 
-        }
-        
-        .priority-medium { 
-            background-color: var(--warning-color); 
-            color: #000; 
-        }
-        
-        .priority-low { 
-            background-color: var(--success-color); 
-            color: #fff; 
-        }
-        
-        .due-date { 
-            font-size: 0.8rem; 
-            color: var(--text-color-secondary); 
-        }
-        
-        .subtask-list { 
-            list-style-type: none; 
-            padding-left: 1.5rem; 
-            margin-top: 0.5rem; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 0.4rem; 
-        }
-        
-        .subtask-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 0.5rem; 
-            font-size: 0.9rem; 
-            padding: 0.3rem;
-            border-radius: 0.3rem;
-            background: rgba(255, 255, 255, 0.03);
-        }
-        
-        .subtask-item.completed span { 
-            text-decoration: line-through; 
-            color: var(--text-color-secondary); 
-        }
-        
-        .task-checkbox { 
-            position: relative; 
-            display: inline-block; 
-            cursor: pointer; 
-        }
-        
-        .task-checkbox input { 
-            opacity: 0; 
-            width: 0; 
-            height: 0; 
-        }
-        
-        .custom-checkbox { 
-            position: relative; 
-            top: 0; 
-            left: 0; 
-            height: 20px; 
-            width: 20px; 
-            background-color: transparent; 
-            border: 2px solid var(--text-color-secondary); 
-            border-radius: 5px; 
-            transition: all 0.2s; 
-        }
-        
-        .task-checkbox input:checked ~ .custom-checkbox { 
-            background-color: var(--accent-color); 
-            border-color: var(--accent-color); 
-        }
-        
-        .custom-checkbox:after { 
-            content: ""; 
-            position: absolute; 
-            display: none; 
-            left: 6px; 
-            top: 2px; 
-            width: 5px; 
-            height: 10px; 
-            border: solid white; 
-            border-width: 0 3px 3px 0; 
-            transform: rotate(45deg); 
-        }
-        
-        .task-checkbox input:checked ~ .custom-checkbox:after { 
-            display: block; 
-        }
-        
-        #add-task-form { 
-            display: flex; 
-            gap: 0.75rem; 
-            align-items: center; 
-            padding-top: 10px; 
-            border-top: 1px solid var(--border-color); 
-        }
-        
-        #add-task-form input[type="text"] { 
-            flex-grow: 1; 
-        }
-        
-        .progress-bar-container { 
-            width: 100%; 
-            background-color: var(--button-bg); 
-            border-radius: 5px; 
-            height: 8px; 
-            overflow: hidden; 
-        }
-        
-        .progress-bar-fill { 
-            height: 100%; 
-            width: 0; 
-            background: linear-gradient(90deg, var(--accent-color), #00d4ff);
-            transition: width 0.4s ease-in-out; 
-            border-radius: 5px; 
-        }
-        
-        #notepad-container { 
-            display: flex; 
-            height: 100%;
-        }
-        
-        #note-list-sidebar { 
-            width: 150px; 
-            border-right: 1px solid var(--border-color); 
-            padding-right: 10px; 
-            display: flex; 
-            flex-direction: column;
-        }
-        
-        #note-list { 
-            list-style-type: none; 
-            padding: 0; 
-            margin: 0; 
-            overflow-y: auto; 
-            flex-grow: 1;
-        }
-        
-        #note-list li { 
-            padding: 8px; 
-            border-radius: 5px; 
-            cursor: pointer; 
-            margin-bottom: 5px; 
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        #note-list li:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        
-        #note-list li.active { 
-            background-color: var(--accent-color); 
-            color: #fff;
-        }
-        
-        #note-editor { 
-            flex-grow: 1; 
-            padding-left: 10px; 
-            height: 100%; 
-        }
-        
-        #note-content { 
-            width: 100%; 
-            height: 100%; 
-            border: none; 
-            background: transparent; 
-            resize: none; 
-            color: var(--text-color); 
-            font-size: 1em; 
-            padding: 0.5rem;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 0.5rem;
-        }
-        
-        #note-content:focus { 
-            outline: none; 
-            box-shadow: 0 0 0 2px var(--accent-color);
-        }
-        
-        .window-swipe-indicator { 
-            position: absolute; 
-            top: 5px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 40px; 
-            height: 4px; 
-            background: rgba(255, 255, 255, 0.3); 
-            border-radius: 2px; 
-            display: none; 
-        }
-        
-        .mobile-close-btn { 
-            display: none; 
-        }
-        
-        #interactive-quote-container { 
-            text-align: center; 
-            padding: 10px; 
-            margin: 0 0 1rem 0; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: all 0.3s; 
-            color: var(--text-color-secondary); 
-            font-size: 0.8rem; 
-            background: rgba(255, 255, 255, 0.05);
-        }
-        
-        #interactive-quote-container:hover { 
-            background-color: var(--button-bg); 
-            color: var(--text-color); 
-            transform: translateY(-2px);
-        }
-        
-        #interactive-quote-container i { 
-            margin-left: 8px; 
-            font-size: 0.9em; 
-        }
+        #notepad-main { display: flex; flex-grow: 1; min-height: 0; }
+        #note-list-sidebar { width: 220px; border-right: 1px solid var(--border-color); padding-right: 10px; display: flex; flex-direction: column; flex-shrink: 0; }
+        #note-list { list-style-type: none; padding: 0; margin: 0; overflow-y: auto; flex-grow: 1; }
+        #note-list li { padding: 10px; border-radius: 5px; cursor: pointer; margin-bottom: 5px; background: rgba(255, 255, 255, 0.05); position: relative; overflow: hidden; }
+        #note-list li .note-list-title { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 4px; }
+        #note-list li .note-list-date { font-size: 0.75rem; color: var(--text-color-secondary); }
+        #note-list li:hover { background: rgba(255, 255, 255, 0.1); }
+        #note-list li.active { background-color: var(--accent-color); color: #fff; }
+        #note-list li.active .note-list-date { color: rgba(255, 255, 255, 0.8); }
 
-        /* ===== KANBAN BOARD STYLES ===== */
-        #kanban-container { 
-            display: flex; 
-            height: 100%; 
-            padding: 0 !important; 
-        }
+        .delete-note-btn { position: absolute; top: 50%; right: 8px; transform: translateY(-50%); background: none; color: var(--text-color-secondary); width: 24px; height: 24px; border-radius: 50%; display: none; align-items: center; justify-content: center; padding: 0; font-size: 0.9rem; }
+        #note-list li:hover .delete-note-btn { display: flex; }
+        #note-list li.active .delete-note-btn { color: #fff; }
+        .delete-note-btn:hover { background: var(--danger-color) !important; color: #fff; }
         
-        .kanban-board { 
-            display: flex; 
-            gap: 1rem; 
-            width: 100%; 
-            height: 100%; 
-        }
+        #note-editor { flex-grow: 1; padding-left: 10px; display: flex; flex-direction: column; min-width: 0; }
+        #note-title-input { font-size: 1.5rem; font-weight: 600; padding: 10px 8px; border: none; background: transparent; border-bottom: 1px solid var(--border-color); margin-bottom: 10px; }
+        #note-title-input:focus { outline: none; border-bottom-color: var(--accent-color); }
+        .note-editor-toolbar { display: flex; gap: 5px; padding: 5px 0; margin-bottom: 5px; border-bottom: 1px solid var(--border-color); }
+        .note-editor-toolbar button { padding: 5px 10px; font-size: 0.8rem; }
+        .note-editor-toolbar button.active { background-color: var(--accent-color); color: #fff; }
+        .note-content-container { flex-grow: 1; display: flex; position: relative; min-height: 0; }
+        #note-content-editor, #note-content-preview { width: 100%; height: 100%; padding: 0.5rem; background: rgba(255, 255, 255, 0.05); border-radius: 0.5rem; }
+        #note-content-editor { border: none; resize: none; color: var(--text-color); font-size: 1em; line-height: 1.6; }
+        #note-content-editor:focus { outline: none; box-shadow: 0 0 0 2px var(--accent-color) inset; }
+        #note-content-preview { overflow-y: auto; display: none; }
+        #note-content-preview h1, #note-content-preview h2, #note-content-preview h3 { margin-top: 1em; margin-bottom: 0.5em; border-bottom: 1px solid var(--border-color); padding-bottom: 0.3em; }
+        #note-content-preview p { margin-bottom: 1em; line-height: 1.6; }
+        #note-content-preview ul, #note-content-preview ol { margin-left: 20px; margin-bottom: 1em; }
+        #note-content-preview code { background: rgba(0,0,0,0.3); padding: 2px 4px; border-radius: 4px; }
+        #note-content-preview pre { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 4px; overflow-x: auto; }
+        #note-content-preview blockquote { border-left: 3px solid var(--accent-color); padding-left: 10px; margin-left: 0; color: var(--text-color-secondary); }
+        .note-status-bar { padding-top: 10px; font-size: 0.8rem; color: var(--text-color-secondary); text-align: right; flex-shrink: 0; }
         
-        .kanban-column { 
-            flex: 1; 
-            background: rgba(0,0,0,0.2); 
-            border-radius: 0.75rem; 
-            display: flex; 
-            flex-direction: column; 
-            transition: background-color 0.2s ease-in-out; 
-            backdrop-filter: blur(5px);
-            border: 1px solid var(--border-color);
-        }
+        #notepad-window[data-view-mode="split"] #note-content-container { gap: 10px; }
+        #notepad-window[data-view-mode="split"] #note-content-editor, #notepad-window[data-view-mode="split"] #note-content-preview { display: block; width: 50%; }
+        #notepad-window[data-view-mode="edit"] #note-content-editor { display: block; }
+        #notepad-window[data-view-mode="preview"] #note-content-preview { display: block; }
         
-        .kanban-column .kanban-column-header { 
-            padding: 0.75rem; 
-            font-weight: 600; 
-            border-radius: 0.75rem 0.75rem 0 0; 
-            color: #fff; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3); 
-        }
+        .kanban-board { display: flex; gap: 1rem; flex-grow: 1; overflow-x: auto; padding-bottom: 1rem; }
+        .kanban-column { flex: 1 0 280px; background: rgba(0,0,0,0.2); border-radius: 0.75rem; display: flex; flex-direction: column; backdrop-filter: blur(5px); border: 1px solid var(--border-color); max-height: 100%;}
+        .kanban-column .kanban-column-header { padding: 0.75rem; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); flex-shrink: 0;}
+        .kanban-column[data-column-id="1"] .kanban-column-header { background-color: var(--kanban-color-1); }
+        .kanban-column[data-column-id="2"] .kanban-column-header { background-color: var(--kanban-color-2); }
+        .kanban-column[data-column-id="3"] .kanban-column-header { background-color: var(--kanban-color-3); }
+        .kanban-column[data-column-id="4"] .kanban-column-header { background-color: var(--kanban-color-4); }
+        .kanban-cards { flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem; padding: 0.75rem; }
+        .kanban-column.drag-over { background-color: var(--button-bg-hover); }
+        .kanban-card { background: var(--dock-bg); padding: 0.75rem; border-radius: 0.5rem; box-shadow: 0 2px 4px rgba(0,0,0,0.2); cursor: grab; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease; border: 1px solid var(--border-color); user-select: none; }
+        .kanban-card:hover { transform: translateY(-3px); box-shadow: 0 6px 12px rgba(0,0,0,0.2); border-color: var(--accent-color); }
+        .kanban-card.dragging { opacity: 0.3; transform: scale(1.05) rotate(3deg); box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        .kanban-card-ghost { position: absolute; pointer-events: none; z-index: 1000; opacity: 0.8; transform: rotate(5deg) scale(1.1); box-shadow: 0 8px 16px rgba(0,0,0,0.3); }
+        .kanban-card .delete-card-btn { position: absolute; top: 5px; right: 5px; background: none; color: var(--text-color-secondary); width: 20px; height: 20px; border-radius: 50%; display: none; align-items: center; justify-content: center; padding: 0; }
+        .kanban-card:hover .delete-card-btn { display: flex; }
+        .kanban-card:hover .delete-card-btn:hover { background: var(--button-bg-hover); color: var(--danger-color); }
+        .add-card-btn { width: calc(100% - 1.5rem); margin: 0.75rem; flex-shrink: 0; }
         
-        .kanban-column[data-column-id="1"] .kanban-column-header { 
-            background-color: var(--kanban-color-1); 
-        }
-        
-        .kanban-column[data-column-id="2"] .kanban-column-header { 
-            background-color: var(--kanban-color-2); 
-        }
-        
-        .kanban-column[data-column-id="3"] .kanban-column-header { 
-            background-color: var(--kanban-color-3); 
-        }
-        
-        .kanban-column[data-column-id="4"] .kanban-column-header { 
-            background-color: var(--kanban-color-4); 
-        }
-        
-        .kanban-cards { 
-            flex-grow: 1; 
-            overflow-y: auto; 
-            display: flex; 
-            flex-direction: column; 
-            gap: 0.75rem; 
-            padding: 0.75rem; 
-            min-height: 50px; 
-        }
-        
-        .kanban-column.drag-over { 
-            background-color: var(--button-bg-hover); 
-        }
-        
-        .kanban-card { 
-            background: var(--dock-bg); 
-            padding: 0.75rem; 
-            border-radius: 0.5rem; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2); 
-            cursor: grab; 
-            position: relative; 
-            transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease; 
-            border: 1px solid var(--border-color);
-            user-select: none; /* Prevents text selection during drag on mobile */
-        }
-        
-        .kanban-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
-            border-color: var(--accent-color);
-        }
-        
-        .kanban-card.dragging { 
-            opacity: 0.3; 
-            transform: scale(1.05) rotate(3deg); 
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3); 
-        }
-        
-        /* New style for the visual 'ghost' element during mobile drag */
-        .kanban-card-ghost {
-            position: absolute;
-            pointer-events: none;
-            z-index: 1000;
-            opacity: 0.8;
-            transform: rotate(5deg) scale(1.1);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-        }
+        #power-off-btn { position: relative; overflow: hidden; }
+        #power-off-btn::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 0, 0, 0.1); border-radius: 1.125rem; opacity: 0; transition: opacity 0.3s; }
+        #power-off-btn:hover::before { opacity: 1; }
+        #power-off-btn:hover { color: #ff453a; }
 
-        .kanban-card .delete-card-btn { 
-            position: absolute; 
-            top: 5px; 
-            right: 5px; 
-            background: none; 
-            color: var(--text-color-secondary); 
-            width: 20px; 
-            height: 20px; 
-            border-radius: 50%; 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 0; 
+        #dev-info-button {
+            width: 100%; padding: 0.8rem 1rem; font-size: 1rem; font-weight: 600;
+            margin-top: 1rem; color: white; cursor: pointer; text-align: center; border: none;
+            background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+            background-size: 400% 400%; border-radius: 0.5rem;
+            display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+            position: relative; overflow: hidden; transition: all 0.3s ease-in-out;
+            text-shadow: 0 0 4px rgba(255, 255, 255, 0.5), 0 0 8px rgba(255, 255, 255, 0.4);
+            animation: gradient-animation 10s ease infinite;
         }
+        #dev-info-button i { color: #fff; text-shadow: none; z-index: 2; }
+        #dev-info-button:hover {
+            transform: scale(1.05) translateY(-3px);
+            box-shadow: 0 0 15px rgba(231, 60, 126, 0.5), 0 0 25px rgba(35, 166, 213, 0.4);
+            animation-duration: 5s;
+        }
+        #dev-info-button::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 0%, rgba(255,255,255,0) 70%);
+            transform: scale(0); opacity: 0; transition: transform 0.5s, opacity 0.5s;
+        }
+        #dev-info-button:hover::before { transform: scale(2); opacity: 1; }
         
-        .kanban-card:hover .delete-card-btn { 
-            display: flex; 
-        }
+        .color-picker-container { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+        .color-option { width: 30px; height: 30px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; transition: transform 0.2s, border-color 0.2s; }
+        .color-option:hover, .color-option.selected { transform: scale(1.1); border-color: white; }
         
-        .kanban-card:hover .delete-card-btn:hover { 
-            background: var(--button-bg-hover); 
-            color: var(--danger-color); 
-        }
+        #focus-pet-container { display: flex; flex-direction: column; align-items: center; justify-content: space-between; height: 100%; text-align: center; }
+        #pet-display { width: 150px; height: 150px; margin-top: 1rem; position: relative; flex-shrink: 0; }
+        #pet-sprite { width: 100%; height: 100%; animation: pet-idle-breathe 3s ease-in-out infinite; }
+        #pet-sprite.happy { animation: pet-happy-bounce 0.8s ease-in-out; }
+        #pet-sprite.working { animation: pet-working-focus 2s ease-in-out infinite; }
+        #pet-info { width: 100%; padding-top: 1rem; }
+        #pet-level { font-weight: 600; font-size: 1.2rem; margin-bottom: 0.5rem; }
+        #pet-xp-bar-container { width: 80%; height: 12px; background-color: var(--button-bg); border-radius: 6px; margin: 0 auto; overflow: hidden; border: 1px solid var(--border-color); }
+        #pet-xp-bar-fill { width: 0%; height: 100%; background: linear-gradient(90deg, var(--success-color), #8effa6); border-radius: 6px; transition: width 0.5s ease-in-out; }
+        #pet-xp-text { font-size: 0.8rem; color: var(--text-color-secondary); margin-top: 0.25rem; }
+        #pet-customization { width: 100%; padding: 1rem; background: rgba(0,0,0,0.2); border-top: 1px solid var(--border-color); margin-top: 1rem; }
+        #pet-customization h4 { margin-top: 0; margin-bottom: 0.75rem; text-align: left; }
+        .pet-options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem; }
+        .pet-option-group { text-align: left; }
+        .pet-option-group label { font-size: 0.9rem; font-weight: 500; margin-bottom: 0.5rem; display: block; }
+        .pet-option-group select { width: 100%; }
+        .pet-controls { display: flex; flex-direction: column; gap: 0.5rem; }
+        .pet-controls button { width: 100%; }
         
-        .add-card-btn { 
-            width: calc(100% - 1.5rem); 
-            margin: 0.75rem; 
-        }
-        
-        /* Power off button styling */
-        #power-off-btn {
-            position: relative;
-            overflow: hidden;
-        }
-        
-        #power-off-btn::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(255, 0, 0, 0.1);
-            border-radius: 1.125rem;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        #power-off-btn:hover::before {
-            opacity: 1;
-        }
-        
-        #power-off-btn:hover {
-            color: #ff453a;
-        }
-        
-        /* Personalization section */
-        .color-picker-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-        
-        .color-option {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            cursor: pointer;
-            border: 2px solid transparent;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        
-        .color-option:hover, .color-option.selected {
-            transform: scale(1.1);
-            border-color: white;
-        }
-        
-        .theme-option {
-            padding: 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            text-align: center;
-            flex: 1;
-            background: rgba(255, 255, 255, 0.1);
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-        
-        .theme-option:hover, .theme-option.selected {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: var(--accent-color);
-        }
-        
-        .theme-options {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .particle-density {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            margin-top: 10px;
-        }
-        
-        .particle-density input {
-            flex: 1;
-        }
     </style>
 </head>
 <body>
     <canvas id="particle-canvas"></canvas>
+
+    <div id="space-theme-container">
+        <div id="stars1" class="stars"></div>
+        <div id="stars2" class="stars stars2"></div>
+        <div id="stars3" class="stars stars3"></div>
+        <canvas id="comet-canvas"></canvas>
+    </div>
     
     <div id="click-to-enter-overlay" class="fullscreen-overlay visible" style="z-index: 202; cursor: pointer;">
         <h2 style="font-weight: 500; text-align: center; max-width: 80%;">
@@ -1282,6 +894,10 @@
                         <div class="icon"><i class="fa-solid fa-note-sticky"></i></div>
                         <div class="label">Notepad</div>
                    </div>
+                   <div class="desktop-icon" data-window="focus-pet-window">
+                        <div class="icon"><i class="fa-solid fa-paw"></i></div>
+                        <div class="label">Focus Pet</div>
+                   </div>
                    <div class="desktop-icon" data-window="settings-window">
                         <div class="icon"><i class="fa-solid fa-gear"></i></div>
                         <div class="label">Settings</div>
@@ -1290,7 +906,6 @@
         </div>
         
         <div id="tasks-window" class="window" style="left: 12%; top: 10%; width: 500px; height: 550px;">
-            <div class="window-swipe-indicator"></div>
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
                 <span class="mobile-close-btn">×</span>
@@ -1315,7 +930,6 @@
         </div>
         
         <div id="kanban-window" class="window" style="left: 20%; top: 12%; width: 850px; height: 600px;">
-            <div class="window-swipe-indicator"></div>
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
                 <span class="mobile-close-btn">×</span>
@@ -1327,15 +941,15 @@
         </div>
 
         <div id="pomodoro-window" class="window" style="top: 20%; left: 40%; width: 400px; height: 320px;">
-            <div class="window-swipe-indicator"></div>
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
                 <span class="mobile-close-btn">×</span>
             </div>
             <div class="window-content" style="text-align: center;">
                 <h3><i class="fa-solid fa-clock"></i> Pomodoro</h3>
-                <div id="pomodoro-time" style="font-size: 5rem; font-weight: 200;"></div>
-                <div id="pomodoro-mode" style="font-size: 1.2em; color: var(--text-color-secondary); margin-bottom: 20px;"></div>
+                <div id="pomodoro-time" style="font-size: 5rem; font-weight: 200; padding: 20px 0;"></div>
+                <div id="pomodoro-mode" style="font-size: 1.2em; color: var(--text-color-secondary); margin-bottom: 10px;"></div>
+                <div id="pomodoro-streak" style="font-size: 1em; color: var(--warning-color); margin-bottom: 20px; font-weight: 600;"></div>
                 <div id="pomodoro-controls" style="display: flex; justify-content: center; gap: 10px;">
                     <button id="pomo-start-pause"></button>
                     <button id="pomo-reset">Reset</button>
@@ -1343,37 +957,111 @@
             </div>
         </div>
         
-        <div id="notepad-window" class="window" style="top: 15%; left: 60%; width: 500px; height: 450px;">
-            <div class="window-swipe-indicator"></div>
+        <div id="notepad-window" class="window" style="top: 15%; left: 55%; width: 700px; height: 550px;" data-view-mode="split">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
                 <span class="mobile-close-btn">×</span>
             </div>
             <div class="window-content" id="notepad-container">
-                <div id="note-list-sidebar">
-                    <h3><i class="fa-solid fa-note-sticky"></i> Notes</h3>
-                    <ul id="note-list"></ul>
-                    <div style="padding-top: 10px;"><button id="new-note-btn" style="width:100%"><i class="fa-solid fa-plus"></i> New Note</button></div>
+                <div class="note-editor-toolbar">
+                    <button id="new-note-btn"><i class="fa-solid fa-plus"></i> New Note</button>
+                    <div style="margin-left:auto; display:flex; gap: 5px;">
+                        <button id="note-view-edit" title="Editor Only"><i class="fa-solid fa-pen-to-square"></i></button>
+                        <button id="note-view-split" title="Split View" class="active"><i class="fa-solid fa-table-columns"></i></button>
+                        <button id="note-view-preview" title="Preview Only"><i class="fa-solid fa-eye"></i></button>
+                    </div>
                 </div>
-                <div id="note-editor">
-                    <textarea id="note-content" placeholder="Select a note or create a new one..."></textarea>
+                <div id="notepad-main">
+                    <div id="note-list-sidebar">
+                        <ul id="note-list"></ul>
+                    </div>
+                    <div id="note-editor">
+                        <div class="empty-state" id="note-editor-empty" style="display: flex; height: 100%; align-items:center; justify-content:center; padding: 1rem;">
+                            <div>
+                                <i class="fa-solid fa-lightbulb" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                                <p>Select a note or create a new one to get started.</p>
+                            </div>
+                        </div>
+                        <div id="note-editor-main" style="display: none; flex-direction: column; height: 100%;">
+                            <input type="text" id="note-title-input" placeholder="Note Title...">
+                            <div class="note-content-container">
+                                <textarea id="note-content-editor" placeholder="Start writing..."></textarea>
+                                <div id="note-content-preview" class="prose"></div>
+                            </div>
+                            <div class="note-status-bar">
+                                <span>Words: 0</span> | <span>Chars: 0</span> | <span id="note-creation-date"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div id="settings-window" class="window" style="top: 10%; left: 10%; width: 480px; height: auto;"> 
-            <div class="window-swipe-indicator"></div>
+
+        <div id="focus-pet-window" class="window" style="left: 60%; top: 25%; width: 320px; height: 520px;">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
                 <span class="mobile-close-btn">×</span>
             </div>
-            <div class="window-content" style="display: flex; flex-direction: column;">
+            <div class="window-content">
+                <div id="focus-pet-container">
+                    <div id="pet-info">
+                        <div id="pet-level">Level 1</div>
+                        <div id="pet-xp-bar-container">
+                            <div id="pet-xp-bar-fill"></div>
+                        </div>
+                        <div id="pet-xp-text">0 / 100 XP</div>
+                    </div>
+                    <div id="pet-display">
+                        <div id="pet-sprite" data-color="default"></div>
+                    </div>
+                    <div id="pet-customization">
+                        <h4>Customize</h4>
+                        <div class="pet-options-grid">
+                            <div class="pet-option-group">
+                                <label for="pet-type-select">Pet</label>
+                                <select id="pet-type-select">
+                                    <option value="slime">Slime</option>
+                                    <option value="ghost">Ghost</option>
+                                    <option value="axolotl">Axolotl</option>
+                                </select>
+                            </div>
+                            <div class="pet-option-group">
+                                <label for="pet-color-select">Color</label>
+                                <select id="pet-color-select">
+                                    <option value="default">Default</option>
+                                    <option value="blue">Blue</option>
+                                    <option value="green">Green</option>
+                                    <option value="pink">Pink</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="pet-controls">
+                            <button id="feed-pet-btn" class="primary"><i class="fa-solid fa-leaf"></i> Feed (10 XP)</button>
+                            <button id="show-tutorial-btn"><i class="fa-solid fa-circle-question"></i> How to Grow</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="settings-window" class="window" style="top: 10%; left: 10%; width: 480px; height: auto;"> 
+            <div class="title-bar">
+                <span class="control-dot dot-red"></span>
+                <span class="mobile-close-btn">×</span>
+            </div>
+            <div class="window-content">
                     <h3><i class="fa-solid fa-gear"></i> Settings</h3>
                     <div class="settings-section">
                         <h4>Appearance</h4>
                         <div style="display:flex; justify-content:space-between; align-items:center;">
                                <label>Animated Background</label>
                                <label class="switch"><input type="checkbox" id="animation-toggle"><span class="slider"></span></label>
+                        </div>
+                        
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 10px;">
+                           <label>Dark Space Theme</label>
+                           <label class="switch"><input type="checkbox" id="space-theme-toggle"><span class="slider"></span></label>
                         </div>
                         
                         <h4 style="margin-top: 15px;">Accent Color</h4>
@@ -1402,11 +1090,14 @@
                         <label>Work Duration (minutes)</label><input type="number" id="pomo-work-input" min="1"><br><br>
                         <label>Break Duration (minutes)</label><input type="number" id="pomo-break-input" min="1">
                     </div>
-                    <div style="margin-top: auto; padding-top: 1rem;">
+                    <div style="margin-top: 1rem;">
                             <div id="interactive-quote-container">
                                 <p id="feature-quote-text">More features coming soon!</p>
                             </div>
-                           <button id="reset-settings">Reset All Data</button>
+                           <button id="dev-info-button" data-link="https://guns.lol/ezken">
+                               <i class="fa-solid fa-code"></i> Dev Info
+                           </button>
+                           <button id="reset-settings" style="margin-top: 1rem;">Reset All Data</button>
                     </div>
             </div>
         </div>
@@ -1416,8 +1107,29 @@
                <div class="dock-item" data-window="pomodoro-window" title="Pomodoro"><i class="fa-solid fa-clock"></i><div class="active-dot"></div></div>
                <div class="dock-item" data-window="kanban-window" title="Kanban Board"><i class="fa-solid fa-table-columns"></i><div class="active-dot"></div></div>
                <div class="dock-item" data-window="notepad-window" title="Notepad"><i class="fa-solid fa-note-sticky"></i><div class="active-dot"></div></div>
+               <div class="dock-item" data-window="focus-pet-window" title="Focus Pet"><i class="fa-solid fa-paw"></i><div class="active-dot"></div></div>
                <div class="dock-item" data-window="settings-window" title="Settings" style="margin-left: 1.25rem;"><i class="fa-solid fa-gear"></i><div class="active-dot"></div></div>
                <div id="power-off-btn" class="dock-item" title="Power Off" style="margin-left: 1.25rem;"><i class="fa-solid fa-power-off"></i></div>
+        </div>
+    </div>
+    
+    <div id="focus-pet-tutorial-overlay">
+        <div class="tutorial-modal">
+            <h3>How to Grow Your Pet</h3>
+            <div class="tutorial-animation-area">
+                <div id="tut-task" class="tut-element tut-task"><i class="fa-solid fa-check"></i> Complete a Task</div>
+                <div id="tut-xp-text" class="tut-element tut-xp-text">+25 XP</div>
+                <div id="tut-xp-bar-container" class="tut-element tut-xp-bar-container">
+                    <div id="tut-xp-bar-fill" class="tut-xp-bar-fill"></div>
+                </div>
+                <div id="tut-pet-container" class="tut-element tut-pet-container"></div>
+            </div>
+            <p id="tutorial-description" class="tutorial-description">Let's get started!</p>
+            <div class="tutorial-navigation">
+                <button id="tutorial-back-btn">Back</button>
+                <div id="tutorial-dots" class="tutorial-dots"></div>
+                <button id="tutorial-next-btn" class="primary">Next</button>
+            </div>
         </div>
     </div>
     
