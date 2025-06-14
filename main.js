@@ -228,10 +228,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             winEl.classList.add('visible');
             
-            if (isMobile() && winEl.querySelector('.window-swipe-indicator')) { 
-                winEl.querySelector('.window-swipe-indicator').style.display = 'block'; 
-            }
-
             if (windowId === 'focus-pet-window' && !this.settings.focusPetTutorialShown) {
                 FocusPet.tutorial.start();
                 this.settings.focusPetTutorialShown = true;
@@ -287,13 +283,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const titleBar = winEl.querySelector(".title-bar"); 
             if (!titleBar) return;
 
-            const closeButtons = winEl.querySelectorAll('.dot-red, .mobile-close-btn'); 
-            const winData = this.windows[winEl.id];
+            // MODIFIED: Only target the red dot for closing on desktop.
+            const closeButton = winEl.querySelector('.dot-red');
+            if (closeButton) {
+                closeButton.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.closeApp(winEl);
+                });
+            }
             
-            closeButtons.forEach(btn => btn.addEventListener('click', (e) => { 
-                e.stopPropagation(); 
-                this.closeApp(winEl); 
-            }));
+            const winData = this.windows[winEl.id];
             
             const dragStart = (e) => {
                 e.preventDefault(); 
@@ -326,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.querySelectorAll('.window').forEach(winEl => { 
                 winEl.addEventListener('touchstart', (e) => { 
                     if (App.isDraggingKanbanCard) return;
+                    // Only initiate swipe if touch starts near the top of the window
                     if (e.touches[0].clientY < winEl.offsetTop + 50) {
                         this.touchStartY = e.touches[0].clientY; 
                     } else {
@@ -337,17 +337,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (App.isDraggingKanbanCard || this.touchStartY === null) return;
                     
                     const swipeDistance = e.touches[0].clientY - this.touchStartY;
-                    if (swipeDistance > 50) {
+                    if (swipeDistance > 50) { // Swipe down threshold
                         const target = e.target;
                         const isScrollable = target.scrollHeight > target.clientHeight;
                         const isAtTop = target.scrollTop === 0;
 
                         if (isScrollable && !isAtTop) {
-                            // Let the browser handle scrolling
+                            // Let the browser handle scrolling within the window content
                         } else {
+                            // If not scrollable, or at the top of a scrollable area, close the window
                             e.preventDefault();
                             this.closeApp(winEl); 
-                            this.touchStartY = null;
+                            this.touchStartY = null; // Reset for next interaction
                         }
                     } 
                 }, { passive: false }); 
