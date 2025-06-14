@@ -179,7 +179,6 @@
             transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        /* FIX: Make Font Awesome icons visible */
         .desktop-icon .icon i {
             color: var(--accent-color); /* Set a distinct color for the icons */
         }
@@ -189,11 +188,9 @@
             transform: scale(1.05);
         }
 
-        /* When the icon container is hovered, change the icon color to white */
         .desktop-icon:hover .icon i {
             color: #fff;
         }
-        /* END FIX */
         
         .desktop-icon .label {
             font-size: 0.875rem;
@@ -331,43 +328,37 @@
             box-shadow: 0 6px 15px rgba(10, 132, 255, 0.4);
         }
 
-        /* ===== NEW: Custom Scrollbar Styles ===== */
-        /* This targets scrollbars in Webkit browsers (Chrome, Safari, Edge, etc.) */
+        /* Custom Scrollbar Styles */
         ::-webkit-scrollbar {
-            width: 10px; /* Width of the entire scrollbar */
-            height: 10px; /* Height of the horizontal scrollbar */
+            width: 10px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(28, 28, 30, 0.5); /* A color that matches the window background */
+            background: rgba(28, 28, 30, 0.5);
             border-radius: 10px;
         }
 
         ::-webkit-scrollbar-thumb {
-            background-color: var(--accent-color); /* Color of the scroll thumb */
-            border-radius: 10px; /* Roundness of the scroll thumb */
-            border: 3px solid transparent; /* Creates padding around the thumb */
+            background-color: var(--accent-color);
+            border-radius: 10px;
+            border: 3px solid transparent;
             background-clip: content-box;
         }
 
         ::-webkit-scrollbar-thumb:hover {
-            background-color: #0077e6; /* A slightly brighter accent color on hover */
+            background-color: #0077e6;
         }
-        /* ===== END Custom Scrollbar Styles ===== */
 
         /* Mobile styles */
         @media (max-width: 768px) {
             html { font-size: 14px; }
             
-            /* Hide the dock on mobile */
-            .dock {
-                display: none;
-            }
+            .dock { display: none; }
 
             .desktop-main-content { 
                 padding-top: 3.5rem; 
                 padding-left: 0.5rem; 
-                /* Adjusted padding-bottom for mobile without the dock */
                 padding-bottom: calc(2rem + env(safe-area-inset-bottom)); 
             }
             #welcome-greeting { font-size: 2.2rem !important; margin-bottom: 0.5rem; }
@@ -376,23 +367,14 @@
                 grid-template-columns: repeat(2, 1fr); 
                 gap: 1rem; 
                 padding: 0 0.5rem; 
-                max-height: 70vh; /* Increased max-height for icons since dock is gone */
+                max-height: 70vh;
                 overflow-y: auto; 
-                padding-bottom: 2rem; /* Additional padding for scrollable area */
+                padding-bottom: 2rem;
             }
             .desktop-icon { padding: 0.8rem; }
             .desktop-icon .icon { font-size: 2.5rem !important; width: 60px; height: 60px; }
             .desktop-icon .label { font-size: 0.9rem !important; }
             
-            /* Dock-related styles (already hidden by .dock {display:none;} but kept for completeness) */
-            .dock-item {
-                width: 3.2rem;
-                height: 3.2rem;
-                font-size: 1.6rem;
-            }
-            .dock-item:hover { transform: scale(1.2) translateY(-5px) !important; }
-            /* End dock-related styles */
-
             .window { 
                 min-width: 90% !important; 
                 min-height: 70% !important; 
@@ -405,8 +387,11 @@
             }
             .window.visible { transform: translate(-50%, -50%) scale(1) !important; }
             .title-bar { padding: 0.8rem; }
-            .control-dot { width: 1.2rem; height: 1.2rem; }
-            .mobile-close-btn { display: block; position: absolute; right: 15px; top: 50%; transform: translateY(-50%); background: var(--danger-color); color: white; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; cursor: pointer; }
+            
+            /* MODIFIED: Hide desktop close button, show mobile swipe indicator */
+            .title-bar .control-dot { display: none; }
+            .window-swipe-indicator { display: block; }
+
             .window-content { padding: 0 0.8rem 0.8rem 0.8rem; }
             #pomodoro-time { font-size: 3.5rem !important; }
             .top-bar { padding: 0.8rem 1rem; }
@@ -428,43 +413,10 @@
 
             /* iOS specific adjustments */
             body.is-ios .desktop-main-content {
-                /* Slightly more padding for iOS due to larger browser chrome at the bottom */
                 padding-bottom: calc(4rem + env(safe-area-inset-bottom)); 
             }
-
             body.is-ios .window-content {
-                /* Ensure content within windows has enough space on iOS */
-                padding-bottom: 1.5rem; /* Give some breathing room at the bottom of window content */
-            }
-
-            body.is-ios #settings-window .window-content {
-                display: flex;
-                flex-direction: column;
-                justify-content: space-between; /* Distribute space */
-                height: 100%; /* Ensure content takes full height to allow auto margin to work */
-                padding-bottom: 1rem; /* Added padding to prevent cutoff at the very bottom */
-            }
-
-            body.is-ios #settings-window .settings-section:last-of-type {
-                margin-bottom: 0; 
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-            }
-
-            body.is-ios #settings-window .settings-section:last-of-type > div:last-child {
-                margin-top: auto; 
-                padding-top: 1rem;
-            }
-
-            body.is-ios #desktop-icons {
-                align-items: flex-start;
-                justify-content: center;
-                height: auto;
-            }
-
-            body.is-ios .desktop-icon {
-                margin-bottom: 0.5rem;
+                padding-bottom: 1.5rem;
             }
         }
         
@@ -506,11 +458,7 @@
         }
         
         /* Animations */
-        @keyframes text-zoom-in { 
-            0% { opacity: 0; transform: scale(1); } 
-            100% { opacity: 1; transform: scale(1.15); } 
-        }
-        
+        @keyframes text-zoom-in { 0% { opacity: 0; transform: scale(1); } 100% { opacity: 1; transform: scale(1.15); } }
         @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
         @keyframes fill-up { 0% { width: 0; } 100% { width: 100%; } }
         @keyframes fade-out { 0% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(0.9); } }
@@ -584,6 +532,7 @@
         #custom-notification-overlay { 
             backdrop-filter: blur(5px); 
             background-color: rgba(0,0,0,0.4); 
+            z-index: 250;
         }
         
         #custom-notification-box { 
@@ -641,11 +590,23 @@
         .control-dot { width: 0.75rem; height: 0.75rem; border-radius: 50%; cursor: pointer; }
         .dot-red { background: #ff5f56; }
         
-        /* This is the key change: it enables scrolling within the content area */
+        /* NEW: Mobile swipe-to-close indicator */
+        .window-swipe-indicator {
+            display: none; /* Hide on desktop by default */
+            position: absolute;
+            top: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 5px;
+            background-color: rgba(255, 255, 255, 0.4);
+            border-radius: 2.5px;
+        }
+
         .window-content { 
-            padding: 1rem; /* Adjust padding as needed */
+            padding: 1rem;
             height: calc(100% - 38px); /* Height of title bar */
-            overflow-y: auto; /* Changed to auto to only show scrollbar when needed */
+            overflow-y: auto;
         }
         
         .window h3 { margin: 0 0 1rem 0; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
@@ -666,7 +627,6 @@
         
         .empty-state { text-align: center; color: var(--text-color-secondary); padding: 3rem 1rem; }
         
-        /* Specific content containers are now responsible for their own height and scrolling */
         #task-list-wrapper { max-height: calc(100% - 130px); overflow-y: auto; margin-bottom: 1rem; }
         #task-list { list-style-type: none; padding: 0; margin: 0; }
         
@@ -751,6 +711,7 @@
         #notepad-window[data-view-mode="edit"] #note-content-editor { display: block; }
         #notepad-window[data-view-mode="preview"] #note-content-preview { display: block; }
         
+        /* RESTORED: Full Kanban Board styles */
         .kanban-board { display: flex; gap: 1rem; flex-grow: 1; overflow-x: auto; padding-bottom: 1rem; }
         .kanban-column { flex: 1 0 280px; background: rgba(0,0,0,0.2); border-radius: 0.75rem; display: flex; flex-direction: column; backdrop-filter: blur(5px); border: 1px solid var(--border-color); max-height: 100%;}
         .kanban-column .kanban-column-header { padding: 0.75rem; font-weight: 600; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,0.3); flex-shrink: 0;}
@@ -908,7 +869,7 @@
         <div id="tasks-window" class="window" style="left: 12%; top: 10%; width: 500px; height: 550px;">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content">
                 <h3><i class="fa-solid fa-list-check"></i> Tasks</h3>
@@ -932,7 +893,7 @@
         <div id="kanban-window" class="window" style="left: 20%; top: 12%; width: 850px; height: 600px;">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content">
                 <h3><i class="fa-solid fa-table-columns"></i> Kanban Board</h3>
@@ -943,7 +904,7 @@
         <div id="pomodoro-window" class="window" style="top: 20%; left: 40%; width: 400px; height: 320px;">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content" style="text-align: center;">
                 <h3><i class="fa-solid fa-clock"></i> Pomodoro</h3>
@@ -960,7 +921,7 @@
         <div id="notepad-window" class="window" style="top: 15%; left: 55%; width: 700px; height: 550px;" data-view-mode="split">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content" id="notepad-container">
                 <div class="note-editor-toolbar">
@@ -1000,7 +961,7 @@
         <div id="focus-pet-window" class="window" style="left: 60%; top: 25%; width: 320px; height: 520px;">
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content">
                 <div id="focus-pet-container">
@@ -1048,7 +1009,7 @@
         <div id="settings-window" class="window" style="top: 10%; left: 10%; width: 480px; height: auto;"> 
             <div class="title-bar">
                 <span class="control-dot dot-red"></span>
-                <span class="mobile-close-btn">×</span>
+                <div class="window-swipe-indicator"></div>
             </div>
             <div class="window-content">
                     <h3><i class="fa-solid fa-gear"></i> Settings</h3>
